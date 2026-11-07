@@ -1,0 +1,157 @@
+{
+ "schema": 1,
+ "aggiornato": "2026-09-29",
+ "modelli": [
+  {
+   "id": "unisal",
+   "nome": "UNISAL",
+   "ruolo": "Consigliato",
+   "consigliato": true,
+   "descrizione": "Il più preciso tra i modelli con licenza commerciale sulla classifica MIT300 con eye-tracker. Leggero e adatto a ogni dispositivo.",
+   "versione": "2020 · pesi affinati su MIT1003",
+   "licenza": "Apache-2.0",
+   "fonte": "https://github.com/rdroste/unisal",
+   "ingresso": {
+    "sizes": [
+     [
+      256,
+      416
+     ],
+     [
+      288,
+      384
+     ],
+     [
+      288,
+      416
+     ],
+     [
+      320,
+      320
+     ],
+     [
+      320,
+      352
+     ],
+     [
+      320,
+      384
+     ],
+     [
+      352,
+      320
+     ],
+     [
+      384,
+      288
+     ],
+     [
+      384,
+      320
+     ],
+     [
+      416,
+      256
+     ],
+     [
+      416,
+      288
+     ]
+    ],
+    "fit": "stretch",
+    "layout": "nchw",
+    "norm": "imagenet"
+   },
+   "uscita": "log-densità",
+   "file": {
+    "url": "/modelli/unisal/ac25c774/unisal.onnx",
+    "size": 6497932,
+    "sha256": "ac25c774f5aaa8212f5b2ce45868114194390b2a9ee57d3f2b8ff97cb588907e"
+   }
+  },
+  {
+   "id": "msinet",
+   "nome": "MSI-Net",
+   "ruolo": "Seconda opinione",
+   "consigliato": false,
+   "descrizione": "Architettura diversa, precisione vicina a UNISAL. Utile per confermare una lettura o confrontare due varianti.",
+   "versione": "2020 · pesi SALICON",
+   "licenza": "MIT",
+   "fonte": "https://github.com/alexanderkroner/saliency",
+   "ingresso": {
+    "sizes": [
+     [
+      240,
+      320
+     ],
+     [
+      320,
+      240
+     ],
+     [
+      320,
+      320
+     ]
+    ],
+    "fit": "pad",
+    "layout": "nhwc",
+    "norm": "255"
+   },
+   "uscita": "densità",
+   "file": {
+    "url": "/modelli/msinet/98c1d3e0/msinet.onnx",
+    "size": 50017097,
+    "sha256": "98c1d3e0b7b6e60b38bfcdbcbd88fa5259f176ad4598cfcfc0fbdb4a74183830"
+   }
+  },
+  {
+   "id": "fastsal",
+   "nome": "FastSal",
+   "ruolo": "Veloce",
+   "consigliato": false,
+   "descrizione": "Il più rapido: pensato per computer poco potenti e per i video. Meno preciso degli altri due.",
+   "versione": "2020 · pesi SALICON",
+   "licenza": "Apache-2.0",
+   "fonte": "https://github.com/feiyanhu/FastSal",
+   "ingresso": {
+    "sizes": [
+     [
+      192,
+      256
+     ],
+     [
+      256,
+      192
+     ]
+    ],
+    "fit": "stretch",
+    "layout": "nchw",
+    "norm": "imagenet"
+   },
+   "uscita": "probabilità",
+   "file": {
+    "url": "/modelli/fastsal/af975ac8/fastsal.onnx",
+    "size": 7358737,
+    "sha256": "af975ac840abe6a95c0c5f26c6999a42ca600d49a97dddb3fb2e9db8b1739a68"
+   }
+  }
+ ],
+ "esclusi": [
+  {
+   "nome": "UMSI",
+   "motivo": "Addestrato su pubblicità e grafica, ma la licenza vieta l'uso commerciale."
+  },
+  {
+   "nome": "DeepGaze IIE, III e MSDB",
+   "motivo": "Primi in classifica, ma senza licenza e troppo pesanti per il browser."
+  },
+  {
+   "nome": "SUM (2024)",
+   "motivo": "Ha una modalità per e-commerce, ma pesa 230 MB e richiede una GPU NVIDIA."
+  },
+  {
+   "nome": "TempSAL, SalNAS, SimpleNet",
+   "motivo": "Licenza ambigua o guadagno di precisione minimo rispetto al peso."
+  }
+ ]
+}

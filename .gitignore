@@ -1,0 +1,11 @@
+.vercel
+.DS_Store
+node_modules
+# --- documenti di progetto (skill docs-progetto) ---
+# scratch: prompt lanciati, handoff, provini, screenshot
+/tmp/
+# note personali di macchina, non condivise
+CLAUDE.local.md
+# segreti
+.env*
+!.env.example

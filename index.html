@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luxury Academy — Neuro Analyzer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Roboto+Condensed:wght@400;500&display=swap">
+<style>
+:root{
+  --black:#000000;--iron:#181818;--char:#202020;--line:#2E2E2E;--graphite:#494949;--ash:#7D7D7D;--steel:#969696;--mist:#E6E6E6;--white:#FFFFFF;
+  --gold:#FFC000;--gold-d:#917300;--gold-l:#FFD24D;--crit:#E5484D;--crit-t:#FF6B6F;
+  --sub:#BDB9B0;
+  --f-disp:"Roboto Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif;
+  --f-body:Roboto,"Helvetica Neue",Arial,sans-serif;
+  --s1:4px;--s2:8px;--s3:16px;--s4:24px;--s5:40px;--s6:56px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:var(--black);color:var(--white);font:16px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lbl{font:500 12px/1.4 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--sub)}
+.k{color:var(--gold)}
+.note{font-size:12px;line-height:1.5;color:var(--sub);margin:var(--s2) 0 0}
+.h2{margin:0 0 var(--s3)}
+
+.app{display:grid;grid-template-columns:288px minmax(0,1fr) 368px;grid-template-rows:64px minmax(0,1fr);height:100vh}
+.top{grid-column:1/-1;display:flex;align-items:center;gap:var(--s4);padding:0 var(--s4);border-bottom:1px solid var(--char);background:var(--black);min-width:0}
+.brand{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.brand .w1{font:500 15px/1 var(--f-disp);letter-spacing:.2em;text-transform:uppercase}
+.brand .w2{font:500 11px/1 var(--f-body);letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding-left:12px;border-left:1px solid var(--graphite)}
+.nav{display:flex;height:100%;margin-left:var(--s3)}
+.nav button{background:none;border:0;border-bottom:2px solid transparent;padding:0 16px;font:500 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sub);cursor:pointer;height:100%}
+.nav button:hover{color:var(--white)}
+.nav button[aria-current="page"]{color:var(--white);border-bottom-color:var(--gold)}
+.grow{flex:1}
+.status{display:flex;align-items:center;gap:8px;font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.dot{width:7px;height:7px;background:var(--steel);display:inline-block;flex:none}
+.dot.ok{background:var(--gold)}.dot.warn{background:var(--gold-d)}.dot.fail{background:var(--crit)}
+.dot.wait{background:var(--gold);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.2}}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:0;cursor:pointer;font:500 12px/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;padding:13px 20px;border:1px solid rgba(255,255,255,.5);background:transparent;color:var(--white);white-space:nowrap;text-decoration:none}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#000}
+.btn.gold:hover{background:var(--gold-l);border-color:var(--gold-l);color:#000}
+.btn.sm{padding:11px 14px;font-size:11px;min-height:36px}
+.btn.xs{padding:9px 12px;font-size:11px;min-height:32px}
+.btn.block{width:100%}
+.btn[aria-pressed="true"]{background:var(--white);border-color:var(--white);color:#000}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:disabled:hover{border-color:rgba(255,255,255,.5);color:var(--white)}
+.seg{display:inline-flex;border:1px solid var(--graphite)}
+.seg button{background:none;border:0;padding:10px 12px;font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--white);color:#000}
+.seg button:disabled{opacity:.35;cursor:not-allowed}
+.seg.full{display:flex}.seg.full button{flex:1;padding:11px 8px}
+
+.side{background:var(--iron);overflow:auto;min-height:0}
+.side.l{border-right:1px solid var(--char)}
+.side.r{border-left:1px solid var(--char);display:flex;flex-direction:column;overflow:hidden}
+.sec{padding:var(--s4);border-bottom:1px solid var(--char)}
+.sec:last-child{border-bottom:0}
+.sec-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s3)}
+.field{display:grid;gap:6px;margin-bottom:var(--s3)}
+select,input[type=text],input[type=url],input[type=number]{background:var(--black);border:1px solid var(--graphite);border-radius:0;padding:10px 12px;font-size:13px;width:100%;color:var(--white)}
+select:focus,input[type=text]:focus,input[type=url]:focus,input[type=number]:focus{border-color:var(--gold);outline:none}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;margin:0 0 var(--s3);cursor:pointer}
+.chk input{accent-color:var(--gold);margin:0}
+
+.drop{display:block;width:100%;border:1px dashed var(--graphite);padding:var(--s3);text-align:center;background:transparent;color:var(--sub);font-size:12px;cursor:pointer;margin-bottom:var(--s2)}
+.drop:hover,.drop.over{border-color:var(--gold);color:var(--white)}
+.drop strong{display:block;color:var(--white);font:500 12px var(--f-body);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.assets{list-style:none;margin:var(--s3) 0 0;padding:0}
+.assets li{position:relative;margin-bottom:2px}
+.asset{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;padding:10px 14px 10px 10px;background:var(--char);border:0;cursor:pointer;text-align:left}
+.asset:hover{background:#262626}
+.asset.on{box-shadow:inset 0 0 0 1px var(--gold);background:#262626}
+.asset .th{width:56px;height:56px;background:#000 center/cover no-repeat;position:relative}
+.asset .th em{position:absolute;left:0;bottom:0;background:var(--gold);color:#000;font:500 11px/1 var(--f-body);letter-spacing:.08em;padding:3px 4px;font-style:normal}
+.asset .nm{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.asset .mt{display:block;font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin-top:2px}
+.asset .sc{font:400 28px/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.asset .sc small{display:block;font:500 11px var(--f-body);letter-spacing:.1em;color:var(--sub);text-align:right;margin-top:2px}
+.assets .del{position:absolute;top:2px;right:2px;background:none;border:0;color:var(--sub);font-size:18px;line-height:1;width:32px;height:32px;cursor:pointer;opacity:0}
+.assets li:hover .del,.assets .del:focus-visible{opacity:1}
+.assets .del:hover{color:var(--white)}
+
+.center{display:flex;flex-direction:column;min-width:0;min-height:0;background:var(--black);position:relative}
+.maps{display:flex;overflow-x:auto;border-bottom:1px solid var(--char);padding:0 var(--s3);flex:none;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
+.maps::-webkit-scrollbar{display:none}
+.center:has(#vReport:not([hidden])) .maps{display:none}
+.maps button{background:none;border:0;border-bottom:2px solid transparent;padding:15px 8px 13px;font:500 11px var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--sub);cursor:pointer;white-space:nowrap}
+.maps button:hover{color:var(--white)}
+.maps button[aria-pressed="true"]{color:var(--gold);border-bottom-color:var(--gold)}
+.view{display:flex;flex-direction:column;flex:1;min-height:0;position:relative}
+.view.scroll{overflow:auto}
+.tools{display:flex;flex-wrap:wrap;gap:14px;align-items:center;padding:10px var(--s3);border-bottom:1px solid var(--char);flex:none}
+.tog{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);cursor:pointer}
+.tog input{accent-color:var(--gold);margin:0}
+.tog input[type=range]{width:88px}
+.stage{position:relative;flex:1;min-height:340px;overflow:hidden}
+.stage canvas,.cmp-stage canvas,.tlc canvas{position:absolute;inset:0;display:block;touch-action:none}
+.stage.drawing canvas{cursor:crosshair}
+.stage.over{box-shadow:inset 0 0 0 2px var(--gold)}
+.legend{position:absolute;left:var(--s3);bottom:12px;display:flex;align-items:center;gap:10px;font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);pointer-events:none}
+.legend i{display:block;width:112px;height:5px}
+.info{position:absolute;right:var(--s3);bottom:11px;font-size:11px;color:var(--sub);pointer-events:none;text-align:right;max-width:55%}
+.tip{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:8px 12px;pointer-events:none;white-space:nowrap}
+
+.timeline{border-top:1px solid var(--char);padding:10px var(--s3);display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;flex:none}
+.tlc{position:relative;height:52px}
+.timeline input[type=range]{width:100%;accent-color:var(--gold);margin:6px 0 0}
+.tl-leg{display:flex;gap:14px;font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub)}
+.tl-leg i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px}
+
+.cluster{display:grid;grid-template-columns:1.35fr repeat(5,minmax(0,1fr));border-top:1px solid var(--char);background:var(--iron);flex:none}
+.dial{padding:12px 6px 14px;text-align:center;border-right:1px solid var(--char);min-width:0}
+.dial:last-child{border-right:0}
+.dial-g{position:relative;width:min(118px,100%);margin:0 auto}
+.dial.big .dial-g{width:min(168px,100%)}
+.dial-g svg{width:100%;height:auto;display:block}
+.dial-v{position:absolute;left:0;right:0;top:34%;font:400 32px/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.dial.big .dial-v{font-size:50px;top:30%}
+.dial-l{font:500 11px/1.3 var(--f-body);letter-spacing:.06em;text-transform:uppercase;margin-top:2px;hyphens:auto;-webkit-hyphens:auto;overflow-wrap:anywhere}
+.dial-s{font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);margin-top:3px}
+.dial-s.in{color:var(--gold)}.dial-s.bad{color:var(--crit-t)}
+
+.hero{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:var(--s5) var(--s6);background:var(--black);overflow:auto}
+.hero .hero-t{font:400 clamp(52px,7.4vw,112px)/.92 var(--f-disp);text-transform:uppercase;margin:14px 0 22px;letter-spacing:-.005em}
+.hero .hero-t span{color:var(--gold)}
+.hero p{max-width:54ch;color:var(--mist);font-size:18px;line-height:1.56;margin:0 0 var(--s4)}
+.hero .row{display:flex;gap:12px;flex-wrap:wrap}
+.hero ul{list-style:none;padding:0;margin:var(--s5) 0 0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;max-width:920px}
+.hero li{border-top:1px solid var(--graphite);padding:16px 20px 0 0}
+.hero li b{display:block;font:400 22px/1.15 var(--f-disp);text-transform:uppercase;margin-bottom:6px}
+.hero li span{font-size:13px;color:var(--sub)}
+
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--char);height:56vh;min-height:320px;flex:none}
+.cmp-col{display:flex;flex-direction:column;background:var(--black);min-width:0}
+.cmp-head{display:flex;align-items:center;gap:12px;padding:10px var(--s3);border-bottom:1px solid var(--char)}
+.cmp-head .tag{font:400 30px/1 var(--f-disp);color:var(--gold);width:22px}
+.cmp-stage{position:relative;flex:1;min-height:0}
+.verdict{display:flex;align-items:baseline;flex-wrap:wrap;gap:8px 20px;padding:var(--s4);background:var(--iron);border-top:1px solid var(--char)}
+.verdict .big{font:400 46px/1 var(--f-disp);text-transform:uppercase}
+.verdict .big span{color:var(--gold)}
+.verdict p{margin:0;color:var(--mist);font-size:14px;max-width:60ch}
+.cmp-tbl{padding:0 var(--s4) var(--s5)}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+.t th{font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);text-align:right;padding:14px 12px 10px;border-bottom:1px solid var(--char)}
+.t th:first-child,.t td:first-child{text-align:left}
+.t td{padding:10px 12px;border-bottom:1px solid var(--char);text-align:right;font-variant-numeric:tabular-nums}
+.t td.win{color:var(--gold)}
+.t tr.grp td{font:500 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--sub);padding-top:18px;text-align:left}
+
+.report{padding:var(--s5)}
+.rep-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--s4);flex-wrap:wrap;border-bottom:1px solid var(--char);padding-bottom:var(--s4);margin-bottom:var(--s4)}
+.rep-title{font:400 clamp(34px,4vw,54px)/1.05 var(--f-disp);text-transform:uppercase;margin:8px 0 0;word-break:break-word}
+.rep-actions{display:flex;gap:8px;flex-wrap:wrap}
+.rep-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:var(--s4)}
+.report .t th,.report .t td{padding-left:8px;padding-right:8px}
+.rep-img{margin:0;background:var(--iron);padding:var(--s3)}
+.rep-img img{width:100%;display:block}
+.rep-dials{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:var(--iron)}
+.rep-dials .dial{border-bottom:1px solid var(--char)}
+.rep-h{display:block;margin:var(--s4) 0 var(--s2)}
+.rep-recs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px}
+
+.rtabs{display:flex;border-bottom:1px solid var(--char);flex:none}
+.rtabs button{flex:1;background:none;border:0;border-bottom:2px solid transparent;padding:18px 8px 15px;font:500 11px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sub);cursor:pointer}
+.rtabs button:hover{color:var(--white)}
+.rtabs button[aria-selected="true"]{color:var(--white);border-bottom-color:var(--gold)}
+.rbody{overflow:auto;flex:1;min-height:0}
+.aoi{background:var(--char);margin-bottom:2px;padding:12px 12px 14px 16px}
+.aoi-top{display:grid;grid-template-columns:minmax(0,1fr) 112px auto;gap:6px;align-items:center}
+.aoi-top input{background:transparent;border:1px solid transparent;padding:6px 8px;font-size:14px}
+.aoi-top input:hover{border-color:var(--graphite)}
+.aoi-top select{padding:6px 6px;font-size:11px}
+.aoi-m{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:10px}
+.aoi-m div{display:flex;flex-direction:column;min-width:0}
+.aoi-m b{font:400 19px/1.15 var(--f-disp);font-variant-numeric:tabular-nums;white-space:nowrap}
+.aoi-m span{font:500 11px var(--f-body);letter-spacing:.02em;text-transform:uppercase;color:var(--sub)}
+.aoi-t{font:500 11px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--sub);margin:8px 0 0}
+.aoi.ok .aoi-t{color:var(--gold)}.aoi.low .aoi-t{color:var(--crit-t)}
+.aoi-t::before,.rec .lv::before{content:'';display:inline-block;width:7px;height:7px;background:currentColor;margin-right:8px;vertical-align:1px}
+.x{background:none;border:0;color:var(--sub);font-size:18px;line-height:1;cursor:pointer;padding:4px 6px}
+.x:hover{color:var(--white)}
+.imp{display:flex;align-items:baseline;gap:14px;margin-top:6px}
+.imp-v{font:400 64px/1 var(--f-disp);font-variant-numeric:tabular-nums}
+.imp-g{font:500 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+.imp-g.in{color:var(--gold)}.imp-g.bad{color:var(--crit-t)}
+.rec{padding:16px;background:var(--char);margin-bottom:2px}
+.rec .lv{font:500 11px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sub)}
+.rec.crit .lv{color:var(--crit-t)}.rec.warn .lv,.rec.ok .lv{color:var(--gold)}
+.rec h3{font:500 14px/1.35 var(--f-body);margin:5px 0 4px}
+.rec p{font-size:13px;line-height:1.5;color:var(--mist);margin:0}
+.diag{list-style:none;margin:var(--s3) 0 0;padding:0;display:grid;gap:12px}
+.diag li{display:grid;grid-template-columns:12px 1fr;gap:8px;font-size:13px;line-height:1.35}
+.diag .dot{margin-top:5px}
+.diag b{display:block;font-weight:500}
+.diag span{font-size:12px;color:var(--sub)}
+.mdl{background:var(--char);padding:12px 14px;margin-bottom:2px}
+.mdl.on{box-shadow:inset 0 0 0 1px var(--gold)}
+.mdl-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mdl-h b{font-weight:500;font-size:14px;word-break:break-word}
+.badge{font:500 11px/1 var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:4px 6px;border:1px solid var(--steel);color:var(--sub)}
+.badge.gold{background:var(--gold);border-color:var(--gold);color:#000}
+.badge.upd{border-color:var(--gold);color:var(--gold)}
+.mdl-a{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.mdl a.src{color:var(--gold);font-size:12px;word-break:break-all}
+.mdl-a a.src{align-self:center;margin-left:4px}
+.prog{height:4px;background:var(--graphite);margin-top:12px}.prog i{display:block;height:100%;background:var(--gold);transition:width .15s ease-out}
+#catList .mdl{padding:14px 16px}
+.cat{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.cat li{background:var(--char);padding:12px 14px;display:grid;gap:3px;font-size:12px}
+.cat b{font-weight:500;font-size:13px}
+.cat span{color:var(--sub)}
+.cat em{font-style:normal;color:var(--mist)}
+.cat em.ok{color:var(--gold)}
+.cat a{color:var(--gold)}
+details{margin-top:var(--s3);font-size:13px;color:var(--mist)}
+details summary{cursor:pointer;font:500 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--white)}
+details p,details dl{margin:10px 0 0;font-size:13px;line-height:1.55}
+details dt{font-weight:500;color:var(--white);margin-top:10px}
+details dd{margin:2px 0 0;color:var(--sub)}
+details a{color:var(--gold)}
+.stack{display:grid;gap:8px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--white);color:#000;padding:12px 16px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw}
+.toast.on{opacity:1}
+@media (pointer:coarse){
+  .btn,.btn.sm,.btn.xs,.seg button,.maps button,.rtabs button,.nav button,.nav a,select,input[type=text],input[type=url],input[type=number]{min-height:44px}
+  .assets .del,.x{width:44px;height:44px;opacity:1}
+}
+@media (prefers-reduced-motion:reduce){.dot.wait{animation:none}.toast{transition:none}}
+
+@media (max-width:1180px){
+  .app{grid-template-columns:1fr;grid-template-rows:auto;height:auto}
+  .top{flex-wrap:wrap;padding:12px var(--s3);gap:8px}
+  .nav{height:44px;margin-left:0;order:3;width:100%}
+  .side.l,.side.r{border:0;border-bottom:1px solid var(--char);overflow:visible}
+  .center{order:1}.side.l{order:2}.side.r{order:3}
+  .top .btn{margin-left:auto}
+}
+@media (max-width:600px){
+  .hero .row .btn{flex:1 1 100%}
+  .stage{min-height:62vh}
+  .cluster{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .dial{border-bottom:1px solid var(--char)}
+  .hero{position:relative;min-height:80vh;padding:var(--s5) var(--s4)}
+  .hero ul{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rep-grid,.rep-recs{grid-template-columns:1fr}
+  .cmp-grid{grid-template-columns:1fr;height:auto}
+  .cmp-stage{height:48vh}
+}
+@media print{
+  @page{size:A4;margin:10mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .top,.side,.maps,.rep-actions,#vAnalisi,#vConfronto,.toast{display:none!important}
+  .app{display:block;height:auto}
+  .center,#vReport{display:block!important;overflow:visible}
+}
+.nav a{display:inline-flex;align-items:center;height:100%;padding:0 16px;font:500 12px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--sub);text-decoration:none;border-bottom:2px solid transparent}
+.nav a:hover{color:var(--white)}
+</style>
+<meta name="description" content="Luxury Academy Neuro Analyzer: stima dove cade lo sguardo su una creatività, misura logo, prodotto e CTA e confronta le varianti. Tutto nel browser.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23000'/%3E%3Crect x='10' y='10' width='12' height='12' fill='%23FFC000'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="top">
+    <h1 class="brand" style="margin:0;font-weight:inherit"><span class="w1">Luxury Academy</span><span class="w2">Neuro Analyzer</span></h1>
+    <nav class="nav" aria-label="Sezioni">
+      <button type="button" data-view="analisi" aria-current="page">Analisi</button>
+      <button type="button" data-view="confronto">Confronto</button>
+      <button type="button" data-view="report">Report</button>
+      <a href="/guida">Guida</a>
+    </nav>
+    <span class="grow"></span>
+    <div class="status" id="status" aria-live="polite"></div>
+    <button class="btn gold sm" type="button" data-act="upload">Nuova analisi</button>
+  </header>
+
+  <aside class="side l" aria-label="Creatività e obiettivo">
+    <section class="sec">
+      <div class="sec-h"><h2 class="lbl" style="margin:0">Creatività</h2><span class="lbl" id="count">0</span></div>
+      <button class="drop" type="button" id="drop" data-act="upload"><strong>Carica immagine o video</strong>Trascina qui, scegli un file o incolla con Ctrl+V</button>
+      <button class="btn sm block" type="button" data-act="sample">Carica due esempi</button>
+      <ul class="assets" id="assets"></ul>
+    </section>
+    <section class="sec">
+      <h2 class="lbl h2">Obiettivo</h2>
+      <div class="field"><label class="lbl" for="platform">Piattaforma</label><select id="platform"></select></div>
+      <div class="field"><label class="lbl" for="industry">Settore</label><select id="industry"></select></div>
+      <p class="note">Le fasce consigliate cambiano con piattaforma e settore. Sono riferimenti indicativi, non dati di mercato.</p>
+    </section>
+  </aside>
+
+  <main class="center">
+    <div class="maps" id="maps" role="group" aria-label="Mappa visualizzata"></div>
+
+    <section class="view" id="vAnalisi">
+      <div class="hero" id="hero">
+        <span class="lbl k">Luxury Academy</span>
+        <h2 class="hero-t">Neuro<br><span>Analyzer</span></h2>
+        <p>Scopri dove cade lo sguardo nei primi secondi, quanto pesa ogni elemento e cosa cambiare prima di investire in media.</p>
+        <div class="row"><button class="btn gold" type="button" data-act="upload">Carica una creatività</button><button class="btn" type="button" data-act="sample">Prova con due esempi</button><a class="btn" href="/guida">Leggi la guida</a></div>
+        <p style="font-size:13px;color:var(--sub);margin:16px 0 0">Le creatività vengono analizzate nel tuo browser: non vengono inviate a nessun server e spariscono quando chiudi la pagina.</p>
+        <ul>
+          <li><b>9 mappe</b><span>Attenzione, nebbia, primi 2 secondi, carico cognitivo, chiarezza e altre.</span></li>
+          <li><b>6 punteggi</b><span>Impact score, focus, carico, chiarezza, coinvolgimento, memorabilità.</span></li>
+          <li><b>Aree e consigli</b><span>Attenzione, tempo e visibilità per logo, prodotto e CTA.</span></li>
+          <li><b>Reti neurali incluse</b><span>UNISAL, MSI-Net e FastSal: si installano con un clic e si aggiornano dal pannello Motore.</span></li>
+        </ul>
+      </div>
+      <div class="tools" id="tools">
+        <label class="tog"><input type="checkbox" id="gaze" checked> Sequenza sguardi</label>
+        <label class="tog" id="safeWrap"><input type="checkbox" id="safe" checked> Zone coperte</label>
+        <div class="seg" id="pal" role="group" aria-label="Palette"><button type="button" data-pal="oro" aria-pressed="true">Oro</button><button type="button" data-pal="termica" aria-pressed="false">Termica</button></div>
+        <label class="tog">Intensità <input type="range" id="op" min="20" max="100" value="80"></label>
+        <span class="grow"></span>
+        <button class="btn sm" type="button" data-act="draw" id="drawBtn" aria-pressed="false">Disegna area</button>
+        <button class="btn sm" type="button" data-act="png">Esporta PNG</button>
+      </div>
+      <div class="stage" id="stage">
+        <canvas id="cv" role="img" aria-label="Mappa della creatività"></canvas>
+        <div class="tip" id="tip" hidden>Trascina per disegnare un'area · Esc per uscire</div>
+        <div class="legend" id="legend"><span id="legLo"></span><i id="legBar"></i><span id="legHi"></span></div>
+        <div class="info" id="info"></div>
+      </div>
+      <div class="timeline" id="tlWrap" hidden>
+        <button class="btn sm" type="button" id="play">Riproduci</button>
+        <div><div class="tlc"><canvas id="tl" aria-label="Andamento di focus e carico nel video"></canvas></div><input type="range" id="fr" min="0" max="0" value="0" aria-label="Fotogramma"></div>
+        <div><div class="tl-leg"><span><i style="background:#FFC000"></i>Focus</span><span><i style="background:#E6E6E6"></i>Carico</span></div><div class="lbl" id="frl" style="margin-top:6px"></div></div>
+      </div>
+      <div class="cluster" id="cluster"></div>
+    </section>
+
+    <section class="view scroll" id="vConfronto" hidden>
+      <div class="cmp-grid">
+        <div class="cmp-col"><div class="cmp-head"><span class="tag">A</span><select id="cmpA" aria-label="Creatività A"></select></div><div class="cmp-stage"><canvas id="cvA"></canvas></div></div>
+        <div class="cmp-col"><div class="cmp-head"><span class="tag">B</span><select id="cmpB" aria-label="Creatività B"></select></div><div class="cmp-stage"><canvas id="cvB"></canvas></div></div>
+      </div>
+      <div class="verdict" id="verdict"></div>
+      <div class="cmp-tbl" id="cmpTable"></div>
+    </section>
+
+    <section class="view scroll" id="vReport" hidden><div class="report" id="rep"></div></section>
+  </main>
+
+  <aside class="side r" aria-label="Dettagli">
+    <div class="rtabs" role="tablist">
+      <button type="button" role="tab" data-rtab="aree" aria-selected="true">Aree</button>
+      <button type="button" role="tab" data-rtab="consigli" aria-selected="false">Consigli</button>
+      <button type="button" role="tab" data-rtab="motore" aria-selected="false">Motore</button>
+    </div>
+    <div class="rbody">
+      <div id="tAree" role="tabpanel"></div>
+      <div id="tConsigli" role="tabpanel" hidden></div>
+      <div id="tMotore" role="tabpanel" hidden>
+        <section class="sec">
+          <h2 class="lbl" style="margin:0 0 12px">Motore di calcolo</h2>
+          <div class="seg full" id="engSeg" role="group" aria-label="Motore"><button type="button" data-eng="classic" aria-pressed="true">Classico</button><button type="button" data-eng="net" aria-pressed="false" disabled>Rete neurale</button></div>
+          <p class="note" style="margin:10px 0 0">Le reti neurali sono addestrate su dati di eye-tracking. Il motore classico è una stima indicativa: sui dati di sguardo reale di MIT1003 somiglia alle persone circa la metà di una rete neurale.</p>
+          <ul class="diag" id="diag"></ul>
+        </section>
+
+        <section class="sec">
+          <div class="sec-h"><h2 class="lbl" style="margin:0">Modelli inclusi</h2><button class="btn xs" type="button" id="catUpd" data-act="catUpdate">Aggiorna modelli</button></div>
+          <div id="catList"></div>
+          <p class="note" id="catNote"></p>
+          <details><summary>Modelli valutati e non inclusi</summary><dl id="catEx"></dl></details>
+        </section>
+
+        <section class="sec">
+          <div class="sec-h"><h2 class="lbl" style="margin:0">Modelli caricati da te</h2><button class="btn xs" type="button" data-act="mCheckAll">Verifica aggiornamenti</button></div>
+          <div id="saved"></div>
+          <p class="note" id="lastCheck"></p>
+        </section>
+
+        <section class="sec">
+          <h2 class="lbl h2">Aggiungi un tuo modello</h2>
+          <label class="chk"><input type="checkbox" id="keep" checked> Conserva nell'app dopo il caricamento</label>
+          <div class="field"><label class="lbl" for="msrc">Sorgente per gli aggiornamenti</label><input type="url" id="msrc" placeholder="https://github.com/… o pagina Hugging Face" autocomplete="off"></div>
+          <div class="field"><label class="lbl" for="mver">Etichetta di versione (facoltativa)</label><input type="text" id="mver" placeholder="es. 2026-09" autocomplete="off"></div>
+          <button class="btn sm block" type="button" id="mfilesBtn">Carica file del modello</button>
+          <p class="note">TensorFlow.js: model.json più tutti i file .bin. ONNX: un file .onnx.</p>
+          <div class="field" style="margin-top:16px"><label class="lbl" for="murl">Oppure indirizzo diretto di model.json o .onnx</label><input type="url" id="murl" placeholder="https://…/model.json" autocomplete="off"></div>
+          <button class="btn sm block" type="button" id="murlBtn">Carica da indirizzo</button>
+          <details><summary>Impostazioni per modelli ONNX</summary>
+            <p>Usate se il modello non dichiara la dimensione d'ingresso. I valori corretti sono nella documentazione del modello.</p>
+            <div class="grid2" style="margin-top:10px">
+              <div class="field"><label class="lbl" for="ow">Larghezza</label><input type="number" id="ow" value="320" min="16" max="2048"></div>
+              <div class="field"><label class="lbl" for="oh">Altezza</label><input type="number" id="oh" value="240" min="16" max="2048"></div>
+              <div class="field"><label class="lbl" for="olayout">Disposizione</label><select id="olayout"><option value="nchw">1×3×A×L (PyTorch)</option><option value="nhwc">1×A×L×3</option></select></div>
+              <div class="field"><label class="lbl" for="onorm">Normalizzazione</label><select id="onorm"><option value="imagenet">ImageNet</option><option value="01">0–1</option><option value="255">0–255</option></select></div>
+            </div>
+          </details>
+          <details><summary>Quando serve un modello tuo</summary>
+            <p>I modelli inclusi coprono l'uso normale. Qui puoi provarne altri in formato TensorFlow.js o ONNX: restano nella memoria del browser e, se indichi una sorgente, l'app controlla una volta al giorno se ne esce una versione nuova.</p>
+          </details>
+        </section>
+
+        <section class="sec">
+          <details style="margin-top:0"><summary>Come leggere i punteggi</summary>
+            <dl>
+              <dt>Neuro impact score</dt><dd>Sintesi pesata di tutte le misure rispetto alla fascia della piattaforma scelta.</dd>
+              <dt>Focus</dt><dd>Quanto l'attenzione si concentra, rispetto a 495 poster reali osservati con eye-tracker: 50 vuol dire concentrata come il poster tipico, 80 più dell'80% dei poster. Dati: UEyes, Jiang e altri, CHI 2023, licenza CC BY 4.0.</dd>
+              <dt>Carico cognitivo</dt><dd>Quantità di dettagli, testo e colori da elaborare. L'ideale è una fascia media.</dd>
+              <dt>Chiarezza</dt><dd>Quanto la composizione si legge a colpo d'occhio.</dd>
+              <dt>Coinvolgimento</dt><dd>Stima della risposta emotiva da saturazione, toni caldi e contrasto.</dd>
+              <dt>Memorabilità</dt><dd>Stima del ricordo da focus, contrasto e visibilità del logo.</dd>
+            </dl>
+            <p>Sono stime utili per confrontare varianti, non sostituiscono un test con persone reali.</p>
+          </details>
+        </section>
+      </div>
+    </div>
+  </aside>
+</div>
+<input type="file" id="file" accept="image/*,video/*" multiple hidden>
+<input type="file" id="mfiles" accept=".json,.bin,.onnx" multiple hidden>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const GRID=128;
+const DISP='"Roboto Condensed","Arial Narrow","Helvetica Neue",Arial,sans-serif';
+const BODY='Roboto,"Helvetica Neue",Arial,sans-serif';
+const CDN='https://cdnjs.cloudflare.com/ajax/libs/';
+const TF_VERSIONS=['4.22.0','4.21.0','4.20.0','4.17.0','4.15.0','4.10.0'];
+const ORT_VERSIONS=['1.30.0','1.29.0','1.27.0','1.22.0','1.20.1'];
+const CAT_URL='/modelli.json', MCACHE='neuro-modelli';
+const NET_TEST_URL='https://storage.googleapis.com/tfjs-models/savedmodel/mobilenet_v2_1.0_224/model.json';
+const CHUNK=3400000, TCHUNK=4500000;
+
+const PLATFORMS={
+  ig_feed:{label:'Instagram feed',ratio:[4/5,1],prior:'ad',bench:{focus:[55,85],demand:[35,60],clarity:[55,85],engagement:[55,85],memory:[50,80]}},
+  ig_story:{label:'Instagram Story e Reels',ratio:[9/16],prior:'ad',safe:true,bench:{focus:[55,85],demand:[30,55],clarity:[60,90],engagement:[60,90],memory:[50,80]}},
+  fb_feed:{label:'Facebook feed',ratio:[1,4/5,1.91],prior:'ad',bench:{focus:[50,80],demand:[35,60],clarity:[55,85],engagement:[50,80],memory:[50,80]}},
+  display:{label:'Banner display',ratio:[1.2,728/90,160/600,.5],prior:'ad',bench:{focus:[60,90],demand:[25,50],clarity:[65,90],engagement:[45,75],memory:[45,75]}},
+  ooh:{label:'Affissione e OOH',ratio:[1.5,2,3,1/1.414],prior:'ad',bench:{focus:[65,90],demand:[20,45],clarity:[70,95],engagement:[50,80],memory:[55,85]}},
+  web:{label:'Sito web e landing',ratio:[1.6,16/9],prior:'ui',bench:{focus:[40,70],demand:[40,65],clarity:[50,80],engagement:[40,70],memory:[40,70]}},
+  print:{label:'Stampa e catalogo',ratio:[1/1.414,1.414],prior:'ad',bench:{focus:[50,80],demand:[35,65],clarity:[55,85],engagement:[50,80],memory:[50,80]}},
+  pack:{label:'Packaging',ratio:null,prior:'ad',bench:{focus:[55,85],demand:[30,60],clarity:[60,90],engagement:[55,85],memory:[55,85]}}
+};
+const INDUSTRIES={
+  luxury:{label:'Lusso e moda',off:{demand:-5,clarity:5,engagement:5,memory:5}},
+  beauty:{label:'Beauty e cosmesi',off:{engagement:5}},
+  auto:{label:'Automotive',off:{focus:5}},
+  food:{label:'Food e beverage',off:{engagement:5,demand:5}},
+  tech:{label:'Tecnologia',off:{demand:5}},
+  finance:{label:'Finanza e assicurazioni',off:{clarity:5}},
+  edu:{label:'Formazione',off:{demand:5,clarity:5}},
+  retail:{label:'Retail ed e-commerce',off:{demand:10,focus:-5}}
+};
+const CATS={
+  brand:{label:'Logo / brand',short:'Logo',target:.06,tip:'Aumenta dimensione o contrasto del logo, oppure avvicinalo al punto più guardato.'},
+  product:{label:'Prodotto',short:'Prodotto',target:.15,tip:'Ingrandisci il prodotto o staccalo dallo sfondo con più luce e contrasto.'},
+  headline:{label:'Titolo',short:'Titolo',target:.10,tip:'Accorcia il titolo e aumenta peso e dimensione del carattere.'},
+  offer:{label:'Offerta / prezzo',short:'Offerta',target:.08,tip:'Isola il prezzo e dagli un colore d\u2019accento.'},
+  cta:{label:'Invito all\u2019azione',short:'CTA',target:.08,tip:'Usa un colore a forte contrasto, ingrandisci il pulsante e lascia spazio vuoto intorno.'},
+  face:{label:'Volto / persona',short:'Volto',target:.10,tip:'Uno sguardo rivolto verso il prodotto porta l\u2019attenzione su di esso.'},
+  other:{label:'Altro',short:'Area',target:0,tip:''}
+};
+const MAPS=[['att','Attenzione'],['fog','Nebbia'],['start','Iniziale 0–2 s'],['end','Finale'],['demand','Carico cognitivo'],['clarity','Chiarezza'],['contour','Contorni'],['blur','Sfocatura'],['orig','Originale']];
+const MAP_INFO={att:'Attenzione totale su un\u2019esposizione di 5 secondi',fog:'Ciò che resta in ombra difficilmente viene notato',start:'Cosa colpisce nei primi 2 secondi',end:'Dove lo sguardo si ferma alla fine',demand:'Zone dense che richiedono sforzo per essere lette',clarity:'Zone leggibili a colpo d\u2019occhio',contour:'Curve di livello dell\u2019attenzione',blur:'Test dello sguardo sfocato: cosa resta riconoscibile',orig:'Immagine originale'};
+const LEG={att:['Bassa','Alta'],start:['Bassa','Alta'],end:['Bassa','Alta'],contour:['Bassa','Alta'],fog:['Ignorato','Notato'],demand:['Leggero','Impegnativo'],clarity:['Confuso','Chiaro']};
+const LV={crit:'Critico',warn:'Da migliorare',info:'Suggerimento',ok:'In linea'};
+
+const S={assets:[],active:null,cmp:[null,null],view:'analisi',map:'att',palette:'oro',gaze:true,opacity:.8,safe:true,draw:false,aoiCat:'cta',
+  platform:'ig_feed',industry:'luxury',engine:'classic',model:null,modelName:'',rtab:'aree',busy:'',play:null,
+  storeOk:false,saved:[],activeSlot:null,pending:null,delArm:null,lastCheck:null,
+  cat:null,catErr:'',inst:{},activeCat:null,dl:null,catBusy:false,catDelArm:null,
+  diag:{tf:{s:'wait',t:'In verifica…'},ort:{s:'wait',t:'In verifica…'},net:{s:'wait',t:'In verifica…'},store:{s:'wait',t:'In verifica…'},model:{s:'idle',t:'Nessun modello caricato'},classic:{s:'ok',t:'Stima indicativa: funziona sempre, ma è meno vicino allo sguardo reale delle reti neurali'}}};
+let uid=1,aoiUid=1,drag=null;
+
+/* ---------- utilità ---------- */
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const ss=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t)};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pct=x=>((x||0)*100).toFixed((x||0)<.1?1:0).replace('.',',')+'%';
+const num=(x,d=1)=>x.toFixed(d).replace('.',',');
+const shortErr=e=>((e&&e.message)||String(e)).slice(0,120);
+const cur=()=>S.assets.find(a=>a.id===S.active)||null;
+const byId=id=>S.assets.find(a=>a.id===id)||null;
+const fmtDate=iso=>{const d=new Date(iso);return isNaN(d)?'—':d.toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})};
+const fmtMB=b=>num(b/1048576,1)+' MB';
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),4200)}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{s.remove();rej(new Error('load'))};document.head.appendChild(s)})}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
+function setBusy(t){S.busy=t;renderStatus()}
+const tick=(ms=0)=>new Promise(r=>setTimeout(r,ms));
+async function fetchT(url,opt={},ms=9000){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms);try{return await fetch(url,{...opt,signal:c.signal,cache:'no-store'})}finally{clearTimeout(t)}}
+function fmtRatio(r){const K=[[1,'1:1'],[4/5,'4:5'],[9/16,'9:16'],[16/9,'16:9'],[1.91,'1,91:1'],[1.5,'3:2'],[2,'2:1'],[3,'3:1'],[1/1.414,'A verticale'],[1.414,'A orizzontale'],[1.6,'16:10'],[1.2,'6:5'],[728/90,'728×90'],[160/600,'160×600'],[.5,'1:2']];
+  const k=K.find(([q])=>Math.abs(r/q-1)<.03);return k?k[1]:num(r,2)+':1'}
+function bench(){const p=PLATFORMS[S.platform].bench,o=INDUSTRIES[S.industry].off||{},B={};for(const k in p){const d=o[k]||0;B[k]=[clamp(p[k][0]+d,0,100),clamp(p[k][1]+d,0,100)]}return B}
+
+/* ---------- palette ---------- */
+const GOLD_STOPS=[[0,[46,34,0]],[.35,[145,115,0]],[.65,[255,192,0]],[1,[255,246,220]]];
+const HEAT_STOPS=[[0,[59,42,140]],[.35,[181,48,138]],[.6,[240,96,42]],[.8,[251,182,26]],[1,[252,255,164]]];
+function buildLUT(st){const L=new Uint8Array(768);for(let i=0;i<256;i++){const t=i/255;let k=0;while(k<st.length-2&&t>st[k+1][0])k++;
+  const [t0,c0]=st[k],[t1,c1]=st[k+1],f=clamp((t-t0)/(t1-t0),0,1);for(let j=0;j<3;j++)L[i*3+j]=Math.round(c0[j]+(c1[j]-c0[j])*f)}return L}
+const LUT_GOLD=buildLUT(GOLD_STOPS),LUT_HEAT=buildLUT(HEAT_STOPS);
+const lut=()=>S.palette==='oro'?LUT_GOLD:LUT_HEAT;
+const lutCss=t=>{const L=lut(),k=Math.round(clamp(t,0,1)*255)*3;return `rgb(${L[k]},${L[k+1]},${L[k+2]})`};
+const legendCss=()=>`linear-gradient(90deg,${(S.palette==='oro'?GOLD_STOPS:HEAT_STOPS).map(([t,c])=>`rgb(${c.join(',')}) ${t*100}%`).join(',')})`;
+
+/* ---------- elaborazione immagine ---------- */
+const LIN=new Float32Array(256);for(let i=0;i<256;i++){const c=i/255;LIN[i]=c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4)}
+const fLab=t=>t>0.008856?Math.cbrt(t):7.787*t+16/116;
+function boxH(s,d,W,H,r){const inv=1/(2*r+1);for(let y=0;y<H;y++){const o=y*W;let acc=0;for(let k=-r;k<=r;k++)acc+=s[o+clamp(k,0,W-1)];
+  for(let x=0;x<W;x++){d[o+x]=acc*inv;acc+=s[o+Math.min(W-1,x+r+1)]-s[o+Math.max(0,x-r)]}}}
+function boxV(s,d,W,H,r){const inv=1/(2*r+1);for(let x=0;x<W;x++){let acc=0;for(let k=-r;k<=r;k++)acc+=s[clamp(k,0,H-1)*W+x];
+  for(let y=0;y<H;y++){d[y*W+x]=acc*inv;acc+=s[Math.min(H-1,y+r+1)*W+x]-s[Math.max(0,y-r)*W+x]}}}
+function blur(src,W,H,r){const a=Float32Array.from(src);if(r<1)return a;const b=new Float32Array(W*H);for(let p=0;p<3;p++){boxH(a,b,W,H,r);boxV(b,a,W,H,r)}return a}
+function resample(s,sw,sh,dw,dh){const d=new Float32Array(dw*dh);
+  for(let y=0;y<dh;y++){const fy=clamp((y+.5)*sh/dh-.5,0,sh-1),y0=Math.floor(fy),y1=Math.min(sh-1,y0+1),ty=fy-y0;
+    for(let x=0;x<dw;x++){const fx=clamp((x+.5)*sw/dw-.5,0,sw-1),x0=Math.floor(fx),x1=Math.min(sw-1,x0+1),tx=fx-x0;
+      d[y*dw+x]=(s[y0*sw+x0]*(1-tx)+s[y0*sw+x1]*tx)*(1-ty)+(s[y1*sw+x0]*(1-tx)+s[y1*sw+x1]*tx)*ty}}return d}
+function norm01(m){let mn=Infinity,mx=-Infinity;for(const x of m){if(x<mn)mn=x;if(x>mx)mx=x}const r=mx-mn||1;for(let i=0;i<m.length;i++)m[i]=(m[i]-mn)/r;return m}
+function peakW(m){let s=0;for(const x of m)s+=x;const mean=s/m.length;return (1-mean)*(1-mean)}
+function maxOf(m){let x=0;for(const v of m)if(v>x)x=v;return x||1}
+function fft(re,im,inv){const n=re.length;
+  for(let i=1,j=0;i<n;i++){let bit=n>>1;for(;j&bit;bit>>=1)j^=bit;j^=bit;if(i<j){let t=re[i];re[i]=re[j];re[j]=t;t=im[i];im[i]=im[j];im[j]=t}}
+  for(let len=2;len<=n;len<<=1){const ang=2*Math.PI/len*(inv?1:-1),wr=Math.cos(ang),wi=Math.sin(ang),h=len>>1;
+    for(let i=0;i<n;i+=len){let cr=1,ci=0;for(let k=0;k<h;k++){const a=i+k,b=a+h,br=re[b]*cr-im[b]*ci,bi=re[b]*ci+im[b]*cr;
+      re[b]=re[a]-br;im[b]=im[a]-bi;re[a]+=br;im[a]+=bi;const n2=cr*wr-ci*wi;ci=cr*wi+ci*wr;cr=n2}}}
+  if(inv)for(let i=0;i<n;i++){re[i]/=n;im[i]/=n}}
+function fft2(re,im,N,inv){for(let y=0;y<N;y++)fft(re.subarray(y*N,(y+1)*N),im.subarray(y*N,(y+1)*N),inv);
+  const cr=new Float32Array(N),ci=new Float32Array(N);
+  for(let x=0;x<N;x++){for(let y=0;y<N;y++){cr[y]=re[y*N+x];ci[y]=im[y*N+x]}fft(cr,ci,inv);for(let y=0;y<N;y++){re[y*N+x]=cr[y];im[y*N+x]=ci[y]}}}
+function spectralResidual(L,W,H){const N=64,re=resample(L,W,H,N,N),im=new Float32Array(N*N);fft2(re,im,N,false);
+  const la=new Float32Array(N*N),ph=new Float32Array(N*N);
+  for(let i=0;i<N*N;i++){la[i]=Math.log(Math.hypot(re[i],im[i])+1e-9);ph[i]=Math.atan2(im[i],re[i])}
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){let s=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)s+=la[((y+dy+N)%N)*N+((x+dx+N)%N)];
+    const i=y*N+x,e=Math.exp(la[i]-s/9);re[i]=e*Math.cos(ph[i]);im[i]=e*Math.sin(ph[i])}
+  fft2(re,im,N,true);const m=new Float32Array(N*N);for(let i=0;i<N*N;i++)m[i]=re[i]*re[i]+im[i]*im[i];
+  return resample(blur(m,N,N,2),N,N,W,H)}
+function prior(W,H,ctx){const P=new Float32Array(W*H);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const nx=(x+.5)/W,ny=(y+.5)/H;let d=0;
+  if(ctx==='ad')d=((nx-.5)/.32)**2+((ny-.5)/.32)**2;else if(ctx==='ui')d=((nx-.28)/.45)**2+((ny-.22)/.4)**2;P[y*W+x]=ctx==='none'?1:Math.exp(-d/2)}return P}
+
+function classic(px,W,H,ctx){const N=W*H,L=new Float32Array(N),A=new Float32Array(N),B=new Float32Array(N),hist=new Float32Array(64);
+  let satSum=0,warm=0,lSum=0,lSq=0;
+  for(let i=0;i<N;i++){const r=px[i*4],g=px[i*4+1],b=px[i*4+2];hist[(r>>6)*16+(g>>6)*4+(b>>6)]++;
+    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),s=mx?(mx-mn)/mx:0;satSum+=s;
+    if(s>.25&&mx>40){const d=mx-mn;let h=mx===r?60*(((g-b)/d)%6):mx===g?60*((b-r)/d+2):60*((r-g)/d+4);if(h<0)h+=360;if(h<70||h>=330)warm++}
+    const R=LIN[r],Gc=LIN[g],Bc=LIN[b];
+    const fx=fLab((0.4124*R+0.3576*Gc+0.1805*Bc)/0.95047),fy=fLab(0.2126*R+0.7152*Gc+0.0722*Bc),fz=fLab((0.0193*R+0.1192*Gc+0.9505*Bc)/1.08883);
+    L[i]=116*fy-16;A[i]=500*(fx-fy);B[i]=200*(fy-fz);lSum+=L[i];lSq+=L[i]*L[i]}
+  let ent=0;for(const h of hist)if(h>0){const p=h/N;ent-=p*Math.log(p)}
+  const colorEnt=ent/Math.log(64),sat=satSum/N,warmS=warm/N,lMean=lSum/N,lstd=Math.sqrt(Math.max(0,lSq/N-lMean*lMean));
+  const cs=new Float32Array(N);
+  [[L,1],[A,1.2],[B,1.2]].forEach(([ch,w])=>{const b1=blur(ch,W,H,1),b2=blur(ch,W,H,5),b3=blur(ch,W,H,12);for(let i=0;i<N;i++)cs[i]+=w*(Math.abs(b1[i]-b2[i])+.7*Math.abs(b1[i]-b3[i]))});
+  const bL=blur(L,W,H,1),bA=blur(A,W,H,1),bB=blur(B,W,H,1);let mL=0,mA=0,mB=0;for(let i=0;i<N;i++){mL+=bL[i];mA+=bA[i];mB+=bB[i]}mL/=N;mA/=N;mB/=N;
+  const ft=new Float32Array(N);for(let i=0;i<N;i++)ft[i]=Math.hypot(bL[i]-mL,bA[i]-mA,bB[i]-mB);
+  const sr=spectralResidual(L,W,H);
+  const ed=new Float32Array(N);let strong=0;
+  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){const i=y*W+x;
+    const gx=L[i-W+1]+2*L[i+1]+L[i+W+1]-L[i-W-1]-2*L[i-1]-L[i+W-1],gy=L[i+W-1]+2*L[i+W]+L[i+W+1]-L[i-W-1]-2*L[i-W]-L[i-W+1];
+    const g=Math.hypot(gx,gy);ed[i]=g;if(g>40)strong++}
+  const edge=strong/Math.max(1,(W-2)*(H-2));
+  const edB=blur(ed,W,H,3);
+  let sal=new Float32Array(N);
+  [[cs,.35],[sr,.25],[ft,.15],[edB,.25]].forEach(([m,w])=>{norm01(m);const k=w*peakW(m);for(let i=0;i<N;i++)sal[i]+=k*m[i]});
+  sal=norm01(blur(sal,W,H,3));
+  const P=prior(W,H,ctx);for(let i=0;i<N;i++)sal[i]*=ctx==='none'?1:(.3+.7*P[i]);
+  const bA6=blur(A,W,H,6),bB6=blur(B,W,H,6),cvar=new Float32Array(N);for(let i=0;i<N;i++)cvar[i]=Math.abs(A[i]-bA6[i])+Math.abs(B[i]-bB6[i]);
+  const e1=norm01(blur(norm01(Float32Array.from(ed)),W,H,6)),c1=norm01(blur(norm01(cvar),W,H,6)),dem=new Float32Array(N);
+  for(let i=0;i<N;i++)dem[i]=.7*e1[i]+.3*c1[i];norm01(dem);
+  return {map:sal,edge,colorEnt,sat,warm:warmS,lstd,dem}}
+
+function toProb(m){let s=0;for(const x of m)s+=Math.max(0,x);const p=new Float32Array(m.length);if(s<=0){p.fill(1/m.length);return p}
+  for(let i=0;i<m.length;i++)p[i]=Math.max(0,m[i])/s;return p}
+/* sequenza degli sguardi: winner-take-all con inibizione del ritorno (Itti, Koch e Niebur 1998).
+   Prende il punto più forte, spegne la zona intorno e ripete; si ferma a 6 punti, quando i punti coprono l'80% dell'attenzione
+   o quando il picco rimasto è sotto il 5% del massimo (rumore). */
+function hotspots(p,W,H){const r=Math.max(3,Math.round(.09*Math.max(W,H))),mx=maxOf(p),q=Float32Array.from(p),out=[];let cov=0;
+  while(out.length<6&&cov<.8){let bi=-1,bv=0;for(let i=0;i<q.length;i++)if(q[i]>bv){bv=q[i];bi=i}
+    if(bi<0||bv<mx*.05)break;const x=bi%W,y=(bi/W)|0;let sh=0;
+    for(let yy=Math.max(0,y-r);yy<=Math.min(H-1,y+r);yy++)for(let xx=Math.max(0,x-r);xx<=Math.min(W-1,x+r);xx++)if((xx-x)**2+(yy-y)**2<=r*r){const k=yy*W+xx;sh+=q[k];q[k]=0}
+    cov+=sh;out.push({x,y,rel:bv/mx,rank:out.length+1,share:sh})}
+  return out}
+function getSmall(src,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d',{willReadFrequently:true});
+  g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(src,0,0,w,h);return g.getImageData(0,0,w,h).data}
+
+async function analyzeCanvas(src){const w=src.width,h=src.height;
+  const mw=w>=h?GRID:Math.max(16,Math.round(GRID*w/h)),mh=h>w?GRID:Math.max(16,Math.round(GRID*h/w));
+  const pr=PLATFORMS[S.platform].prior,feat=classic(getSmall(src,mw,mh),mw,mh,pr);let raw=feat.map,eng='classic';
+  if(S.engine==='net'&&S.model){try{raw=await runNet(src,mw,mh);eng='net'}catch(e){setDiag('model','warn','Errore in analisi: '+shortErr(e))}}
+  const p=toProb(raw),mx=maxOf(p),P0=prior(mw,mh,pr);
+  const st=new Float32Array(p.length);for(let i=0;i<p.length;i++)st[i]=Math.pow(p[i]/mx,2.2)*(.4+.6*P0[i]);const pStart=toProb(st);
+  const en=blur(p,mw,mh,4);for(let i=0;i<en.length;i++)en[i]=Math.pow(en[i],.7);const pEnd=toProb(en);
+  const cla=new Float32Array(feat.dem.length);for(let i=0;i<cla.length;i++)cla[i]=1-feat.dem[i];
+  return {mw,mh,p,maxP:mx,pStart,maxS:maxOf(pStart),pEnd,maxE:maxOf(pEnd),dem:feat.dem,cla,hot:hotspots(p,mw,mh),feat,eng,cal:eng==='net'?(S.activeCat||'unisal'):'classico'}}
+
+/* ---------- punteggi ---------- */
+/* concentrazione dell'attenzione: 1 − 2 × (quota di immagine che contiene metà dell'attenzione). 0 = uniforme, vicino a 1 = un solo punto */
+function concentration(p){const s=Float32Array.from(p).sort();let c=0,k=0;for(let i=s.length-1;i>=0;i--){c+=s[i];k++;if(c>=.5)break}return 1-2*k/s.length}
+/* Focus = percentile della concentrazione tra i 495 poster del dataset UEyes (eye-tracking, CC BY 4.0), calcolata con lo stesso motore:
+   50 vuol dire concentrato come il poster tipico. Tabelle generate da strumenti/tara_focus.cjs */
+const FOCUS_CAL=/*FOCUS_CAL*/{"classico":[0.2517,0.355,0.3812,0.3991,0.4131,0.4308,0.4488,0.4595,0.4776,0.4954,0.5126,0.5259,0.5437,0.5621,0.5846,0.6184,0.65,0.6895,0.7507,0.775,0.8522],"unisal":[0.5745,0.6501,0.6879,0.7092,0.7347,0.7518,0.7628,0.7823,0.802,0.8176,0.8365,0.8556,0.8737,0.8854,0.8963,0.9063,0.9169,0.9296,0.9451,0.9531,0.9753],"msinet":[0.4902,0.5823,0.6252,0.6476,0.6658,0.6818,0.6982,0.7117,0.7226,0.7446,0.7604,0.774,0.7852,0.7978,0.8154,0.8251,0.8403,0.8596,0.8757,0.8941,0.9441],"fastsal":[0.4469,0.5387,0.5731,0.6025,0.6185,0.6345,0.6521,0.6662,0.6825,0.6955,0.7178,0.732,0.7485,0.7671,0.7821,0.7962,0.8135,0.8292,0.844,0.8586,0.9224]}/*FINE*/;
+function focusScore(c,eng){const q=FOCUS_CAL[eng]||FOCUS_CAL.unisal;if(!q)return clamp(c,0,1)*100;if(c<=q[0])return 0;if(c>=q[q.length-1])return 100;
+  for(let i=1;i<q.length;i++)if(c<=q[i]){const t=(c-q[i-1])/Math.max(1e-9,q[i]-q[i-1]);return 100*(i-1+t)/(q.length-1)}return 100}
+function basic(an){const f=an.feat,arr=Float32Array.from(an.p).sort(),n=arr.length,k=Math.max(1,Math.round(n*.1));let top=0;for(let i=n-k;i<n;i++)top+=arr[i];
+  const conc=concentration(an.p),focus=focusScore(conc,an.cal||'classico'),strong=an.hot.filter(h=>h.rel>.4).length;
+  const demand=clamp(100*(.45*clamp(f.edge/.3,0,1)+.35*f.colorEnt+.2*clamp((strong-1)/4,0,1)),0,100);
+  const clarity=clamp(.6*(100-demand)+.4*focus,0,100);
+  const engagement=clamp(100*(.35*clamp(f.sat/.55,0,1)+.25*clamp(f.warm/.5,0,1)+.25*clamp(f.lstd/28,0,1)+.15*focus/100),0,100);
+  return {focus,conc,top,demand,clarity,engagement}}
+function inBox(x,nx,ny){return nx>=x.x&&nx<=x.x+x.w&&ny>=x.y&&ny<=x.y+x.h}
+function boxSum(arr,mw,mh,x){let s=0;const x0=Math.max(0,Math.floor(x.x*mw)),x1=Math.min(mw,Math.ceil((x.x+x.w)*mw)),y0=Math.max(0,Math.floor(x.y*mh)),y1=Math.min(mh,Math.ceil((x.y+x.h)*mh));
+  for(let y=y0;y<y1;y++)for(let xx=x0;xx<x1;xx++)if(inBox(x,(xx+.5)/mw,(y+.5)/mh))s+=arr[y*mw+xx];return s}
+function aoiStats(a){const an=a.an;a.aois.forEach(x=>{x.share=boxSum(an.p,an.mw,an.mh,x);x.start=boxSum(an.pStart,an.mw,an.mh,x);x.end=boxSum(an.pEnd,an.mw,an.mh,x);
+  x.seen=1-Math.exp(-18*x.share);x.time=5*(.4*x.start+.6*x.share);
+  const ins=an.hot.filter(h=>inBox(x,(h.x+.5)/an.mw,(h.y+.5)/an.mh));x.first=ins.length?Math.min(...ins.map(h=>h.rank)):null})}
+function scores(a){const b=basic(a.an),B=bench();
+  const brand=a.aois.filter(x=>x.cat==='brand'),bShare=brand.length?brand.reduce((s,x)=>s+x.share,0):null;
+  const memory=clamp(100*(.4*b.focus/100+.3*(bShare==null?.5:clamp(bShare/.12,0,1))+.3*clamp(a.an.feat.lstd/28,0,1)),0,100);
+  const keys=a.aois.filter(x=>CATS[x.cat].target>0),keyAtt=keys.length?keys.reduce((s,x)=>s+clamp(x.share/CATS[x.cat].target,0,1),0)/keys.length:null;
+  const reach=(v,[lo])=>v>=lo?1:clamp(v/lo,0,1),mid=(v,[lo,hi])=>v>=lo&&v<=hi?1:v<lo?clamp(1-(lo-v)/40,0,1):clamp(1-(v-hi)/40,0,1);
+  const parts=[[reach(b.focus,B.focus),.22],[reach(b.clarity,B.clarity),.18],[mid(b.demand,B.demand),.15],[reach(b.engagement,B.engagement),.15],[reach(memory,B.memory),.15]];
+  if(keyAtt!=null)parts.push([keyAtt,.15]);const tw=parts.reduce((s,p)=>s+p[1],0);
+  return {...b,memory,bShare,keyAtt,impact:100*parts.reduce((s,p)=>s+p[0]*p[1],0)/tw}}
+function describePos(nx,ny){const v=ny<1/3?'in alto':ny>2/3?'in basso':'al centro',o=nx<1/3?'a sinistra':nx>2/3?'a destra':'al centro';return v==='al centro'&&o==='al centro'?'al centro':`${v} ${o}`}
+function recommend(a){const r=[],sc=a.sc,B=bench(),pl=PLATFORMS[S.platform],an=a.an;const add=(lvl,title,body)=>r.push({lvl,title,body});
+  const keys=a.aois.filter(x=>CATS[x.cat].target>0);
+  if(!a.aois.length)add('info','Definisci le aree chiave','Disegna logo, prodotto e CTA: ottieni attenzione, tempo e visibilità per ogni elemento e un impact score completo.');
+  a.aois.forEach(x=>{const c=CATS[x.cat];if(c.target&&x.share<c.target)add(x.share<c.target/2?'crit':'warn',`${x.name}: ${pct(x.share)} dell\u2019attenzione`,`Per ${c.label.toLowerCase()} l\u2019obiettivo è almeno ${pct(c.target)}. ${c.tip}`)});
+  const h1=an.hot[0];if(h1&&keys.length&&!keys.some(k=>inBox(k,(h1.x+.5)/an.mw,(h1.y+.5)/an.mh)))
+    add('warn','Il primo sguardo cade fuori dagli elementi chiave',`Il punto n°1 è ${describePos((h1.x+.5)/an.mw,(h1.y+.5)/an.mh)}. Porta lì il messaggio principale oppure attenua il contrasto di quell\u2019area.`);
+  if(sc.focus<B.focus[0])add(sc.focus<B.focus[0]-20?'crit':'warn','Attenzione dispersa',`Focus ${Math.round(sc.focus)} su una fascia di ${B.focus[0]}–${B.focus[1]}. Crea un elemento dominante: più grande, più contrastato e con spazio vuoto intorno.`);
+  if(sc.demand>B.demand[1])add(sc.demand>B.demand[1]+15?'crit':'warn','Carico cognitivo alto',`Carico ${Math.round(sc.demand)} sopra la fascia ${B.demand[0]}–${B.demand[1]}. Elimina un blocco di testo o un elemento decorativo e raggruppa le informazioni.`);
+  else if(sc.demand<B.demand[0])add('info','Composizione molto essenziale','Il carico è sotto la fascia: nel lusso può funzionare, verifica che il messaggio resti comprensibile in un secondo.');
+  if(sc.clarity<B.clarity[0])add('warn','Chiarezza sotto la fascia','Aumenta lo spazio negativo, allinea gli elementi su una griglia e riduci i livelli di lettura.');
+  if(sc.engagement<B.engagement[0])add('warn','Coinvolgimento contenuto','Colori poco saturi o contrasto basso. Un volto, un dettaglio materico o un accento caldo alzano la risposta emotiva.');
+  if(sc.memory<B.memory[0])add('warn','Memorabilità contenuta',sc.bShare==null?'Disegna l\u2019area del logo: il ricordo dipende molto dalla visibilità del brand.':'Rendi il brand più visibile e collegalo all\u2019elemento più guardato.');
+  if(pl.safe&&S.safe)a.aois.forEach(x=>{if(CATS[x.cat].target&&(x.y<.14||x.y+x.h>.8))add('warn',`${x.name} nella zona coperta`,'Nelle Story e nei Reels circa il 14% in alto e il 20% in basso sono coperti dall\u2019interfaccia. Spostalo verso il centro.')});
+  if(pl.ratio){const r0=a.w/a.h;if(!pl.ratio.some(q=>Math.abs(r0/q-1)<.04))add('info','Formato non standard per la piattaforma',`Proporzione ${fmtRatio(r0)}. Formati consigliati per ${pl.label}: ${pl.ratio.map(fmtRatio).join(', ')}.`)}
+  if(!r.some(x=>x.lvl==='crit'||x.lvl==='warn'))add('ok','Creatività in linea con la fascia consigliata','Nessuna criticità rilevata. Confronta una variante per verificare se c\u2019è margine di miglioramento.');
+  const ord={crit:0,warn:1,info:2,ok:3};return r.sort((x,y)=>ord[x.lvl]-ord[y.lvl])}
+function refresh(a){aoiStats(a);a.sc=scores(a);a.recs=recommend(a)}
+function grade(v){return v>=75?{cls:'in',txt:'Eccellente'}:v>=60?{cls:'in',txt:'Buono'}:v>=45?{cls:'',txt:'Da migliorare'}:{cls:'bad',txt:'Critico'}}
+function status(v,[lo,hi],kind){if(kind==='demand')return v>hi?{cls:'bad',txt:'Troppo alto'}:v<lo?{cls:'',txt:'Sotto la fascia'}:{cls:'in',txt:'Nella fascia'};
+  return v>=lo?{cls:'in',txt:'Nella fascia'}:v<lo-15?{cls:'bad',txt:'Sotto la fascia'}:{cls:'',txt:'Vicino alla fascia'}}
+
+/* ---------- reti neurali: TensorFlow.js e ONNX ---------- */
+function postMap(d){let mn=Infinity,mx=-Infinity;for(const v of d){if(v<mn)mn=v;if(v>mx)mx=v}
+  if(mx<=0){for(let i=0;i<d.length;i++)d[i]=Math.exp(d[i]-mx)}else{for(let i=0;i<d.length;i++)d[i]-=mn}return d}
+async function runTF(src,W,H){const tf=window.tf,m=S.model.m,inp=m.inputs[0],shp=inp.shape||[],portrait=src.height>src.width;
+  const ih=shp[1]>0?shp[1]:(portrait?320:240),iw=shp[2]>0?shp[2]:(portrait?240:320);
+  const x=tf.tidy(()=>{const t=tf.image.resizeBilinear(tf.browser.fromPixels(src).toFloat(),[ih,iw]).expandDims(0);return inp.dtype==='int32'?t.toInt():t});
+  let y;try{y=m.predict(x)}catch(e){y=await m.executeAsync(x)}x.dispose();
+  if(Array.isArray(y)){const f=y[0];y.slice(1).forEach(t=>t.dispose());y=f}
+  else if(!(y instanceof tf.Tensor)&&typeof y==='object'){const ks=Object.keys(y),f=y[ks[0]];ks.slice(1).forEach(k=>y[k].dispose());y=f}
+  const out=tf.tidy(()=>{let t=y.squeeze();if(t.rank===3)t=t.mean(-1);if(t.rank!==2)throw new Error('uscita non è una mappa 2D');return tf.image.resizeBilinear(t.expandDims(-1),[H,W]).squeeze()});
+  y.dispose();const d=Float32Array.from(await out.data());out.dispose();return postMap(d)}
+/* dimensione d'ingresso con la proporzione più vicina a quella della creatività */
+function pickSize(cfg,sw,sh){if(!cfg.sizes)return [cfg.h,cfg.w];const r=sh/sw,d=s=>Math.abs(Math.log(s[0]/s[1]/r));return cfg.sizes.reduce((b,x)=>d(x)<d(b)?x:b)}
+async function runOnnx(src,W,H,M=S.model){const {sess,cfg}=M,[ih,iw]=pickSize(cfg,src.width,src.height),n=iw*ih,data=new Float32Array(3*n),mean=[.485,.456,.406],sd=[.229,.224,.225];
+  let px,box=null;
+  if(cfg.fit==='pad'){const k=Math.min(iw/src.width,ih/src.height),dw=Math.max(1,Math.round(src.width*k)),dh=Math.max(1,Math.round(src.height*k)),ox=Math.floor((iw-dw)/2),oy=Math.floor((ih-dh)/2);
+    const c=document.createElement('canvas');c.width=iw;c.height=ih;const g=c.getContext('2d',{willReadFrequently:true});g.fillStyle='#000';g.fillRect(0,0,iw,ih);
+    g.imageSmoothingEnabled=true;g.imageSmoothingQuality='high';g.drawImage(src,ox,oy,dw,dh);px=g.getImageData(0,0,iw,ih).data;box={x:ox/iw,y:oy/ih,w:dw/iw,h:dh/ih}}
+  else px=getSmall(src,iw,ih);
+  for(let i=0;i<n;i++)for(let c=0;c<3;c++){let v=px[i*4+c];v=cfg.norm==='255'?v:cfg.norm==='01'?v/255:(v/255-mean[c])/sd[c];if(cfg.layout==='nchw')data[c*n+i]=v;else data[i*3+c]=v}
+  const dims=cfg.layout==='nchw'?[1,3,ih,iw]:[1,ih,iw,3];
+  const out=await sess.run({[sess.inputNames[0]]:new ort.Tensor('float32',data,dims)}),o=out[sess.outputNames[0]],d=o.dims;
+  let oh,ow;if(d.length===4&&d[3]===1){oh=d[1];ow=d[2]}else{oh=d[d.length-2];ow=d[d.length-1]}
+  if(!(oh>0&&ow>0))throw new Error('uscita non è una mappa 2D');
+  let raw=Float32Array.from(o.data.subarray?o.data.subarray(0,oh*ow):Array.from(o.data).slice(0,oh*ow));
+  if(box){const x0=Math.round(box.x*ow),y0=Math.round(box.y*oh),cw=Math.max(1,Math.round(box.w*ow)),ch=Math.max(1,Math.round(box.h*oh)),c=new Float32Array(cw*ch);
+    for(let y=0;y<ch;y++)c.set(raw.subarray((y0+y)*ow+x0,(y0+y)*ow+x0+cw),y*cw);raw=c;ow=cw;oh=ch}
+  return postMap(resample(raw,ow,oh,W,H))}
+const runNet=(src,W,H)=>S.model.kind==='onnx'?runOnnx(src,W,H):runTF(src,W,H);
+function onnxCfg(sess){const cfg={w:clamp(+$('#ow').value||320,16,2048),h:clamp(+$('#oh').value||240,16,2048),layout:$('#olayout').value,norm:$('#onorm').value};
+  try{const md=sess.inputMetadata&&sess.inputMetadata[0],sh=md&&md.shape;
+    if(sh&&sh.length===4){if(sh[1]===3&&sh[2]>0&&sh[3]>0){cfg.layout='nchw';cfg.h=sh[2];cfg.w=sh[3]}else if(sh[3]===3&&sh[1]>0&&sh[2]>0){cfg.layout='nhwc';cfg.h=sh[1];cfg.w=sh[2]}}}catch(e){}
+  return cfg}
+
+async function activateModel(M,opts={}){const prev=S.model;S.model=M;
+  try{const c=document.createElement('canvas');c.width=320;c.height=240;const g=c.getContext('2d');g.fillStyle='#777';g.fillRect(0,0,320,240);
+    const t0=performance.now();await runNet(c,32,24);const ms=Math.round(performance.now()-t0);
+    S.modelName=M.name;setDiag('model','ok',`${M.name} · ${M.kind==='onnx'?'ONNX'+(M.ep?' su '+M.ep:''):'TensorFlow.js'} · prova in ${ms} ms`);S.engine='net'}
+  catch(e){S.model=prev;if(!prev)S.engine='classic';setDiag('model','fail','Si carica ma non produce una mappa: '+shortErr(e));renderAll();return false}
+  if(prev&&prev!==M&&prev.sess&&prev.sess.release)prev.sess.release().catch(()=>{});
+  S.activeCat=opts.cat||null;sset('cat:active',S.activeCat||'').catch(()=>{});
+  if(opts.cat){S.activeSlot=null;sdel('mdl:active')}
+  else if(opts.slot){S.activeSlot=opts.slot;sset('mdl:active',opts.slot).catch(()=>{})}
+  else if(opts.save&&$('#keep').checked){try{await saveModel(M,opts)}catch(e){S.activeSlot=null;setDiag('store','warn','Modello attivo ma non conservato: '+shortErr(e))}}
+  else S.activeSlot=null;
+  await reanalyzeAll();renderSaved();renderCatalog();if(!opts.silent)toast(`Rete neurale attiva: ${M.name}`);return true}
+function takeMeta(){const src=$('#msrc').value.trim(),ver=$('#mver').value.trim(),p=S.pending;S.pending=null;$('#mver').value='';
+  return {name:p&&p.name,source:src||(p&&p.source)||'',version:ver}}
+async function loadModelFromFiles(files){const arr=[...files],meta=takeMeta(),onnx=arr.find(f=>/\.onnx$/i.test(f.name));
+  if(onnx){await loadOnnxBytes(new Uint8Array(await onnx.arrayBuffer()),meta.name||onnx.name.replace(/\.onnx$/i,''),{save:true,...meta});return}
+  if(!window.tf){toast('TensorFlow.js non è disponibile qui');return}
+  const json=arr.find(f=>f.name.toLowerCase().endsWith('.json'));if(!json){setDiag('model','fail','Manca model.json oppure il file .onnx');return}
+  setDiag('model','wait','Lettura dei file…');
+  try{const spec=JSON.parse(await json.text()),h=tf.io.browserFiles([json,...arr.filter(f=>f!==json)]);
+    const isLayers=spec.format==='layers-model'||(spec.modelTopology&&(spec.modelTopology.class_name||spec.modelTopology.model_config));
+    const m=isLayers?await tf.loadLayersModel(h):await tf.loadGraphModel(h);
+    await activateModel({kind:'tf',m,name:meta.name||json.name.replace(/\.json$/i,'')},{save:true,...meta})}
+  catch(e){setDiag('model','fail','File non validi: '+shortErr(e))}}
+async function loadOnnxBytes(bytes,name,opts){if(!await ensureOrt()){toast('ONNX Runtime non è disponibile qui');return}
+  setDiag('model','wait','Avvio del modello ONNX…');
+  try{const sess=await ort.InferenceSession.create(bytes,{executionProviders:['wasm']});await activateModel({kind:'onnx',sess,cfg:opts.cfg||onnxCfg(sess),name,bytes},opts)}
+  catch(e){setDiag('model','fail','ONNX non avviato: '+shortErr(e))}}
+async function loadModelFromURL(url,over){if(!url){toast('Inserisci l\u2019indirizzo del modello');return}
+  const meta=over||takeMeta();meta.source=meta.source||url;const name=meta.name||decodeURIComponent(url.split('/').filter(Boolean).slice(-2,-1)[0]||'modello');
+  setDiag('model','wait','Download in corso…');
+  try{if(/\.onnx(\?|#|$)/i.test(url)){const r=await fetchT(url,{},120000);if(!r.ok)throw new Error('risposta '+r.status);await loadOnnxBytes(new Uint8Array(await r.arrayBuffer()),name,{save:true,...meta});return}
+    if(!window.tf)throw new Error('TensorFlow.js non disponibile');let m;try{m=await tf.loadGraphModel(url)}catch(e1){m=await tf.loadLayersModel(url)}
+    await activateModel({kind:'tf',m,name},{save:true,...meta})}
+  catch(e){setDiag('model','fail','Download non riuscito: '+shortErr(e)+'. Scarica i file e caricali da qui.')}}
+
+/* ---------- memoria dell'app: modelli conservati ---------- */
+if(!(window.storage&&window.storage.set)&&window.indexedDB){(()=>{let dbp=null;
+  const db=()=>dbp||(dbp=new Promise((res,rej)=>{const r=indexedDB.open('luxury-neuro-analyzer',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}));
+  const run=async(mode,fn)=>{const d=await db();return new Promise((res,rej)=>{const t=d.transaction('kv',mode),rq=fn(t.objectStore('kv'));t.oncomplete=()=>res(rq.result);t.onerror=()=>rej(t.error);t.onabort=()=>rej(t.error)})};
+  window.storage={get:async k=>{const v=await run('readonly',s=>s.get(k));if(v===undefined)throw new Error('chiave assente');return {key:k,value:v,shared:false}},
+    set:async(k,v)=>{await run('readwrite',s=>s.put(v,k));return {key:k,value:v,shared:false}},
+    delete:async k=>{await run('readwrite',s=>s.delete(k));return {key:k,deleted:true,shared:false}},
+    list:async()=>({keys:[],shared:false})}})()}
+async function sget(k){try{const r=await window.storage.get(k,false);return r?r.value:null}catch(e){return null}}
+async function sset(k,v){if(!S.storeOk)throw new Error('memoria non disponibile');const r=await window.storage.set(k,v,false);if(!r)throw new Error('salvataggio rifiutato');return r}
+async function sdel(k){try{await window.storage.delete(k,false)}catch(e){}}
+const writeIndex=()=>sset('mdl:index',JSON.stringify(S.saved));
+function b64(u8){let s='';for(let i=0;i<u8.length;i+=32768)s+=String.fromCharCode.apply(null,u8.subarray(i,i+32768));return btoa(s)}
+function unb64(str){const s=atob(str),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}
+function concatU8(parts){const t=parts.reduce((s,p)=>s+p.length,0),u=new Uint8Array(t);let o=0;for(const p of parts){u.set(p,o);o+=p.length}return u}
+const toU8=wd=>Array.isArray(wd)?concatU8(wd.map(b=>new Uint8Array(b))):new Uint8Array(wd);
+async function captureArtifacts(m){let art=null;await m.save(tf.io.withSaveHandler(async a=>{art=a;return {modelArtifactsInfo:{dateSaved:new Date(),modelTopologyType:'JSON'}}}));
+  if(!art)throw new Error('esportazione del modello non riuscita');return art}
+async function purgeSlot(e){for(let i=0;i<(e.chunks||0);i++)await sdel(`mdl:${e.slot}:b:${i}`);for(let i=0;i<(e.hchunks||0);i++)await sdel(`mdl:${e.slot}:h:${i}`)}
+async function saveModel(M,opts){if(!S.storeOk)throw new Error('memoria dell\u2019app non disponibile');
+  let bytes,head;
+  if(M.kind==='onnx'){bytes=M.bytes;head={kind:'onnx',cfg:M.cfg}}
+  else{const art=await captureArtifacts(M.m),{weightData,...rest}=art;bytes=toU8(weightData);
+    head={kind:'tf',tfKind:rest.format==='graph-model'?'graph':(rest.modelTopology&&(rest.modelTopology.class_name||rest.modelTopology.model_config)?'layers':'graph'),art:rest}}
+  const slot='m'+Date.now().toString(36),chunks=Math.ceil(bytes.length/CHUNK),hs=JSON.stringify(head),hchunks=Math.max(1,Math.ceil(hs.length/TCHUNK));
+  const e={slot,name:M.name,kind:M.kind,size:bytes.length,chunks,hchunks,added:new Date().toISOString(),source:opts.source||'',version:opts.version||'',baseline:'',checkedAt:'',check:null,backupOf:null};
+  try{for(let i=0;i<chunks;i++){setBusy(`Conservo il modello ${i+1}/${chunks}`);await sset(`mdl:${slot}:b:${i}`,b64(bytes.subarray(i*CHUNK,(i+1)*CHUNK)));await tick(120)}
+    for(let i=0;i<hchunks;i++)await sset(`mdl:${slot}:h:${i}`,hs.slice(i*TCHUNK,(i+1)*TCHUNK))}
+  catch(err){setBusy('');await purgeSlot(e);throw new Error(bytes.length>20*1048576?'modello troppo grande per la memoria dell\u2019app: usa una versione quantizzata a 8 bit':shortErr(err))}
+  const prev=S.saved.find(x=>x.name===M.name&&!x.backupOf);
+  if(prev){const old=S.saved.find(x=>x.backupOf===prev.slot);if(old){await purgeSlot(old);S.saved.splice(S.saved.indexOf(old),1)}prev.backupOf=slot;e.source=e.source||prev.source}
+  S.saved.push(e);await writeIndex();await sset('mdl:active',slot);S.activeSlot=slot;setBusy('');
+  setDiag('store','ok',`${S.saved.filter(x=>!x.backupOf).length} modelli conservati`);renderSaved();
+  if(e.source)checkUpdate(e,true);
+  toast(prev?`Nuova versione di ${M.name} conservata: la precedente resta come backup`:`${M.name} conservato nell\u2019app`)}
+async function loadSlot(e,opts={}){setDiag('model','wait',`Avvio di ${e.name} dalla memoria dell\u2019app…`);
+  try{let hs='';for(let i=0;i<e.hchunks;i++){const v=await sget(`mdl:${e.slot}:h:${i}`);if(v==null)throw new Error('dati incompleti');hs+=v}
+    const head=JSON.parse(hs),parts=[];
+    for(let i=0;i<e.chunks;i++){const v=await sget(`mdl:${e.slot}:b:${i}`);if(v==null)throw new Error('dati incompleti');parts.push(unb64(v))}
+    const bytes=concatU8(parts);
+    if(head.kind==='onnx'){if(!await ensureOrt())throw new Error('ONNX Runtime non disponibile');
+      const sess=await ort.InferenceSession.create(bytes,{executionProviders:['wasm']});return await activateModel({kind:'onnx',sess,cfg:head.cfg,name:e.name,bytes},{slot:e.slot,...opts})}
+    if(!window.tf)throw new Error('TensorFlow.js non disponibile');
+    const h=tf.io.fromMemory({...head.art,weightData:bytes.buffer}),m=head.tfKind==='layers'?await tf.loadLayersModel(h):await tf.loadGraphModel(h);
+    return await activateModel({kind:'tf',m,name:e.name},{slot:e.slot,...opts})}
+  catch(err){setDiag('model','fail','Modello conservato non avviabile: '+shortErr(err));return false}}
+async function deleteModel(e){const b=S.saved.find(x=>x.backupOf===e.slot);await purgeSlot(e);if(b){await purgeSlot(b);S.saved.splice(S.saved.indexOf(b),1)}
+  S.saved.splice(S.saved.indexOf(e),1);await writeIndex().catch(()=>{});
+  if(S.activeSlot===e.slot){S.model=null;S.activeSlot=null;S.engine='classic';await sdel('mdl:active');setDiag('model','idle','Nessun modello caricato');await reanalyzeAll()}
+  setDiag('store','ok',`${S.saved.filter(x=>!x.backupOf).length} modelli conservati`);renderSaved();toast(`${e.name} eliminato`)}
+async function restoreBackup(e){const b=S.saved.find(x=>x.backupOf===e.slot);if(!b)return;b.backupOf=null;e.backupOf=b.slot;await writeIndex();
+  if(await loadSlot(b))toast(`Ripristinata la versione del ${fmtDate(b.added)}`);renderSaved()}
+
+/* ---------- modelli inclusi: catalogo, installazione, aggiornamento ----------
+   I file stanno in /modelli/<id>/<impronta>/ e non cambiano mai; il catalogo /modelli.json dice quale versione è attuale.
+   Nel browser: file nella Cache API, indice (cat:inst) e modello attivo (cat:active) nella memoria dell'app. */
+const catById=id=>S.cat&&S.cat.modelli.find(m=>m.id===id);
+async function loadCatalog(){try{const r=await fetch(CAT_URL,{cache:'no-cache'});if(!r.ok)throw new Error('risposta '+r.status);S.cat=await r.json();S.catErr=''}
+  catch(e){S.catErr=navigator.onLine===false?'Sei offline: i modelli installati funzionano, il catalogo si aggiorna quando torni online.':'Catalogo non raggiungibile: '+shortErr(e)}
+  renderCatalog();return !!S.cat}
+const saveInst=()=>sset('cat:inst',JSON.stringify(S.inst)).catch(()=>{});
+function requestPersist(){try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}}
+async function sha256hex(bytes){const h=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('')}
+async function cacheOpen(){if(!('caches' in window))throw new Error('la cache del browser non è disponibile');return caches.open(MCACHE)}
+async function cachePut(url,bytes){const c=await cacheOpen();await c.put(url,new Response(bytes,{headers:{'Content-Type':'application/octet-stream'}}))}
+async function cacheGet(url){try{const c=await cacheOpen(),r=await c.match(url);return r?new Uint8Array(await r.arrayBuffer()):null}catch(e){return null}}
+async function cacheDel(url){try{const c=await cacheOpen();await c.delete(url)}catch(e){}}
+async function fetchModel(m){const f=m.file,r=await fetch(f.url);if(!r.ok)throw new Error('download non riuscito (risposta '+r.status+')');
+  const total=f.size||+r.headers.get('content-length')||0,rd=r.body.getReader(),parts=[];let got=0,t0=0;
+  for(;;){const {done,value}=await rd.read();if(done)break;parts.push(value);got+=value.length;const now=performance.now();if(now-t0>120){t0=now;S.dl={id:m.id,got,total};renderCatalog()}}
+  const bytes=concatU8(parts);S.dl={id:m.id,got,total,verify:true};renderCatalog();
+  if(f.size&&bytes.length!==f.size)throw new Error('download incompleto, riprova');
+  if(f.sha256&&await sha256hex(bytes)!==f.sha256)throw new Error('file danneggiato: l\u2019impronta non coincide con il catalogo');
+  return bytes}
+/* apre il modello su WebGPU se c'è, altrimenti sulla CPU, e lo prova su un'immagine grigia */
+async function catSession(info,bytes){if(!await ensureOrt())throw new Error('ONNX Runtime non disponibile');
+  const g0=info.ingresso,cfg={...g0,h:g0.sizes[0][0],w:g0.sizes[0][1]};
+  const open=async ep=>{const sess=await ort.InferenceSession.create(bytes.slice(0),{executionProviders:[ep],graphOptimizationLevel:'all',logSeverityLevel:3}),M={kind:'onnx',sess,cfg,name:info.nome,ep:ep==='webgpu'?'WebGPU':'CPU'};
+    try{const dev=ep==='webgpu'?await gpuDevice():null,e0=S.gpuErr||0;
+      const c=document.createElement('canvas');c.width=320;c.height=240;const g=c.getContext('2d');g.fillStyle='#777';g.fillRect(0,0,320,240);
+      const d=await runOnnx(c,32,24,M);if(!d.every(Number.isFinite))throw new Error('uscita non valida');
+      /* la GPU può scartare un'operazione senza eccezioni: se segnala un errore durante la prova si passa alla CPU */
+      if(dev){await dev.queue.onSubmittedWorkDone();await tick(30);if((S.gpuErr||0)>e0)throw new Error('errore della GPU')}
+      return M}
+    catch(e){sess.release&&sess.release().catch(()=>{});throw e}};
+  if(navigator.gpu){try{return await open('webgpu')}catch(e){}}
+  return open('wasm')}
+async function gpuDevice(){try{const d=await Promise.resolve(ort.env.webgpu&&ort.env.webgpu.device);
+  if(d&&!d.__neuro){d.__neuro=true;d.addEventListener('uncapturederror',()=>{S.gpuErr=(S.gpuErr||0)+1})}return d||null}catch(e){return null}}
+function instRecord(m){return {nome:m.nome,version:m.versione,licenza:m.licenza,ingresso:m.ingresso,sha256:m.file.sha256,url:m.file.url,size:m.file.size,installed:new Date().toISOString()}}
+async function installCat(id,{update=false}={}){const m=catById(id);if(!m||S.dl)return false;
+  const had=S.inst[id],wasActive=S.activeCat===id&&!!S.model;
+  try{S.dl={id,got:0,total:m.file.size};renderCatalog();
+    const bytes=await fetchModel(m),M=await catSession(m,bytes);
+    await cachePut(m.file.url,bytes);
+    let prev=had&&had.prev||null;
+    if(had&&had.url!==m.file.url){if(had.prev)await cacheDel(had.prev.url);prev={...had};delete prev.prev}
+    S.inst[id]={...instRecord(m),prev};await saveInst();requestPersist();S.dl=null;
+    if(!update||wasActive)await activateModel(M,{cat:id,silent:update});else M.sess.release&&M.sess.release().catch(()=>{});
+    renderCatalog();if(update&&!wasActive)toast(`${m.nome} aggiornato`);return true}
+  catch(e){S.dl=null;renderCatalog();toast(`${m.nome}: ${shortErr(e)}`);return false}}
+async function useCat(id,opts={}){const e=S.inst[id];if(!e)return false;
+  const bytes=await cacheGet(e.url);
+  if(!bytes){if(!catById(id)){if(!opts.silent)toast(`${e.nome}: il browser ha liberato lo spazio e il catalogo non è raggiungibile`);return false}
+    if(!opts.silent)toast(`${e.nome}: il browser aveva liberato lo spazio, lo riscarico`);return installCat(id)}
+  try{setDiag('model','wait',`Avvio di ${e.nome}…`);const M=await catSession(e,bytes);return await activateModel(M,{cat:id,...opts})}
+  catch(err){setDiag('model','fail',`${e.nome} non avviabile: ${shortErr(err)}`);return false}}
+async function restoreCat(id){const e=S.inst[id];if(!e||!e.prev)return;const bytes=await cacheGet(e.prev.url);
+  if(!bytes){e.prev=null;await saveInst();renderCatalog();toast('La versione precedente non è più nel browser');return}
+  try{const M=await catSession(e.prev,bytes),cur={...e};delete cur.prev;S.inst[id]={...e.prev,prev:cur};await saveInst();
+    await activateModel(M,{cat:id,silent:true});renderCatalog();toast(`${e.nome}: ripristinata la versione precedente`)}
+  catch(err){toast(`${e.nome}: ${shortErr(err)}`)}}
+async function removeCat(id){const e=S.inst[id];if(!e)return;await cacheDel(e.url);if(e.prev)await cacheDel(e.prev.url);delete S.inst[id];await saveInst();
+  if(S.activeCat===id){if(S.model&&S.model.sess&&S.model.sess.release)S.model.sess.release().catch(()=>{});
+    S.model=null;S.activeCat=null;S.engine='classic';sset('cat:active','').catch(()=>{});setDiag('model','idle','Nessun modello caricato');await reanalyzeAll()}
+  renderCatalog();toast(`${e.nome} rimosso dal browser`)}
+async function updateCatalog(){if(S.catBusy||S.dl)return;S.catBusy=true;renderCatalog();
+  const ok=await loadCatalog();let n=0,fail=0;
+  if(ok)for(const id of Object.keys(S.inst)){const m=catById(id);if(m&&m.file.sha256!==S.inst[id].sha256){if(await installCat(id,{update:true}))n++;else fail++}}
+  S.catBusy=false;renderCatalog();
+  toast(!ok?S.catErr:fail?`${n} ${n===1?'aggiornato':'aggiornati'}, ${fail} non riusciti: riprova più tardi`:n?`${n} ${n===1?'modello aggiornato':'modelli aggiornati'}`:Object.keys(S.inst).length?'Tutti i modelli installati sono aggiornati':'Nessun modello installato: scegline uno dall\u2019elenco')}
+
+/* ---------- controllo aggiornamenti ---------- */
+function parseGH(u){const m=/github\.com\/([^\/\s]+)\/([^\/\s#?]+)/i.exec(u||'');return m?{o:m[1],r:m[2].replace(/\.git$/,'')}:null}
+function parseHF(u){const m=/huggingface\.co\/([^\/\s]+)\/([^\/\s#?]+)/i.exec(u||'');return m&&!/^(spaces|datasets|api)$/i.test(m[1])?{o:m[1],r:m[2]}:null}
+async function remoteStamp(e){const gh=parseGH(e.source);
+  if(gh){let r=await fetchT(`https://api.github.com/repos/${gh.o}/${gh.r}/releases/latest`);
+    if(r.ok){const j=await r.json();return {stamp:j.published_at,label:`rilascio ${j.tag_name}`,url:j.html_url}}
+    r=await fetchT(`https://api.github.com/repos/${gh.o}/${gh.r}/commits?per_page=1`);
+    if(r.ok){const j=await r.json(),d=j[0]&&j[0].commit&&j[0].commit.committer&&j[0].commit.committer.date;return {stamp:d,label:'modifica del repository',url:`https://github.com/${gh.o}/${gh.r}`}}
+    throw new Error('GitHub '+r.status)}
+  const hf=parseHF(e.source);
+  if(hf){const r=await fetchT(`https://huggingface.co/api/models/${hf.o}/${hf.r}`);if(r.ok){const j=await r.json();return {stamp:j.lastModified||j.sha,label:'modifica del modello',url:`https://huggingface.co/${hf.o}/${hf.r}`}}throw new Error('Hugging Face '+r.status)}
+  if(/^https?:\/\//i.test(e.source)){const r=await fetchT(e.source,{method:'HEAD'});if(!r.ok)throw new Error('risposta '+r.status);
+    return {stamp:r.headers.get('etag')||r.headers.get('last-modified')||'',label:'file del modello',url:e.source,direct:true}}
+  return null}
+async function checkUpdate(e,quiet){let res;
+  try{const st=await remoteStamp(e);
+    if(!st)res={s:'nosource',t:'Nessuna sorgente: aggiungila per ricevere gli avvisi'};
+    else if(!st.stamp)res={s:'unknown',t:'La sorgente non indica una versione'};
+    else if(!e.baseline){e.baseline=st.stamp;res={s:'ok',t:`Riferimento registrato: ${st.label}`,url:st.url}}
+    else if(st.stamp!==e.baseline){const dt=/^\d{4}-\d{2}-\d{2}/.test(st.stamp)?' del '+fmtDate(st.stamp):'';res={s:'update',t:`Aggiornamento disponibile: ${st.label}${dt}`,url:st.url,direct:!!st.direct}}
+    else res={s:'ok',t:'Nessun aggiornamento',url:st.url}}
+  catch(err){res={s:'blocked',t:'Controllo online bloccato dal browser: verifica dalla pagina della sorgente',url:e.source&&/^https?:/i.test(e.source)?e.source:''}}
+  e.check=res;e.checkedAt=new Date().toISOString();await writeIndex().catch(()=>{});renderSaved();
+  if(res.s==='update'&&!quiet)toast(`${e.name}: aggiornamento disponibile`);return res}
+async function checkAll(quiet){const list=S.saved.filter(x=>!x.backupOf);if(!list.length){if(!quiet)toast('Nessun modello conservato da verificare');return}
+  setBusy('Verifica aggiornamenti');for(const e of list)await checkUpdate(e,true);setBusy('');
+  S.lastCheck=new Date().toISOString();sset('mdl:lastcheck',S.lastCheck).catch(()=>{});renderSaved();
+  const n=list.filter(e=>e.check&&e.check.s==='update').length;if(n)toast(`${n} ${n===1?'modello ha':'modelli hanno'} un aggiornamento disponibile`);else if(!quiet)toast('Verifica completata')}
+
+/* ---------- diagnostica e avvio librerie ---------- */
+function setDiag(k,s,t){S.diag[k]={s,t};renderDiag();renderStatus()}
+async function initTF(){for(const v of TF_VERSIONS){try{await loadScript(`${CDN}tensorflow/${v}/tf.min.js`);
+  if(window.tf){await tf.ready();setDiag('tf','ok',`Versione ${tf.version.tfjs} · calcolo su ${tf.getBackend()}`);return true}}catch(e){}}
+  setDiag('tf','fail','Non caricabile da cdnjs: i modelli TensorFlow.js non sono utilizzabili');return false}
+let ortPromise=null;
+function ensureOrt(){if(window.ort&&window.ort.InferenceSession)return Promise.resolve(true);if(ortPromise)return ortPromise;
+  ortPromise=(async()=>{for(const v of ORT_VERSIONS){try{await loadScript(`${CDN}onnxruntime-web/${v}/ort.min.js`);
+    if(window.ort&&ort.InferenceSession){ort.env.wasm.wasmPaths=`${CDN}onnxruntime-web/${v}/`;ort.env.wasm.numThreads=1;ort.env.logLevel='error';setDiag('ort','ok',`Versione ${v} · pronto per i modelli ONNX`);return true}}catch(e){}}
+    setDiag('ort','fail','Non caricabile da cdnjs: i modelli ONNX non sono utilizzabili');return false})();return ortPromise}
+async function testNet(){try{const r=await fetchT(NET_TEST_URL,{},7000);setDiag('net',r.ok?'ok':'warn',r.ok?'Consentito: modelli e aggiornamenti scaricabili da indirizzo':`Risposta ${r.status}: carica i modelli dai file`)}
+  catch(e){setDiag('net','fail','Bloccato dal browser: carica i modelli dai file')}}
+async function initStore(){if(!(window.storage&&window.storage.set)){S.storeOk=false;setDiag('store','fail','Non disponibile qui: i modelli vanno ricaricati a ogni apertura');renderSaved();return}
+  try{const r=await window.storage.set('mdl:ping',String(Date.now()),false);if(!r)throw new Error('scrittura rifiutata');S.storeOk=true;
+    const raw=await sget('mdl:index');S.saved=raw?JSON.parse(raw):[];S.lastCheck=await sget('mdl:lastcheck');
+    const n=S.saved.filter(x=>!x.backupOf).length;setDiag('store','ok',n?`${n} modelli conservati`:'Pronta: i modelli caricati restano nell\u2019app')}
+  catch(e){S.storeOk=false;setDiag('store','fail','Non accessibile: '+shortErr(e))}renderSaved()}
+
+/* ---------- caricamento creatività ---------- */
+function thumbOf(src){const t=document.createElement('canvas'),s=112/Math.max(src.width,src.height);t.width=Math.max(1,Math.round(src.width*s));t.height=Math.max(1,Math.round(src.height*s));
+  t.getContext('2d').drawImage(src,0,0,t.width,t.height);return t.toDataURL('image/jpeg',.82)}
+function imgToCanvas(img){const s=Math.min(1,1600/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');
+  c.width=Math.max(1,Math.round(img.naturalWidth*s));c.height=Math.max(1,Math.round(img.naturalHeight*s));const g=c.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,0,0,c.width,c.height);return c}
+function pushAsset(a){S.assets.push(a);S.active=a.id;if(!S.cmp[0])S.cmp[0]=a.id;else if(!S.cmp[1]&&S.cmp[0]!==a.id)S.cmp[1]=a.id}
+async function addImage(src,name,aois){const a={id:uid++,name,kind:'image',w:src.width,h:src.height,src,thumb:thumbOf(src),aois:(aois||[]).map(x=>({...x,id:aoiUid++}))};
+  a.an=await analyzeCanvas(src);refresh(a);pushAsset(a);return a}
+function loadImageFile(file){return new Promise(res=>{const url=URL.createObjectURL(file),img=new Image();
+  img.onload=async()=>{await addImage(imgToCanvas(img),file.name||'Immagine incollata');URL.revokeObjectURL(url);res()};
+  img.onerror=()=>{toast('Immagine non leggibile: '+(file.name||''));URL.revokeObjectURL(url);res()};img.src=url})}
+function seek(v,t){return new Promise(res=>{let done=false;const fin=()=>{if(done)return;done=true;v.removeEventListener('seeked',fin);res()};v.addEventListener('seeked',fin);v.currentTime=Math.min(t,Math.max(0,v.duration-.05));setTimeout(fin,3000)})}
+function frameCanvas(v){const s=Math.min(1,960/Math.max(v.videoWidth,v.videoHeight)),c=document.createElement('canvas');c.width=Math.max(1,Math.round(v.videoWidth*s));c.height=Math.max(1,Math.round(v.videoHeight*s));c.getContext('2d').drawImage(v,0,0,c.width,c.height);return c}
+async function addVideo(file){const url=URL.createObjectURL(file),v=document.createElement('video');v.muted=true;v.playsInline=true;v.preload='auto';v.src=url;setBusy('Lettura del video…');
+  try{await new Promise((res,rej)=>{v.onloadeddata=()=>res();v.onerror=()=>rej(new Error('formato non supportato dal browser'));setTimeout(()=>rej(new Error('tempo scaduto')),15000)});
+    const dur=v.duration;if(!isFinite(dur)||dur<=0)throw new Error('durata non leggibile');
+    const n=clamp(Math.ceil(dur/.5),4,20),frames=[];
+    for(let i=0;i<n;i++){setBusy(`Fotogramma ${i+1} di ${n}`);const t=(i+.5)*dur/n;await seek(v,t);const c=frameCanvas(v),an=await analyzeCanvas(c);frames.push({t,src:c,an,b:basic(an)});await tick()}
+    const a={id:uid++,name:file.name,kind:'video',dur,frames,fi:0,w:frames[0].src.width,h:frames[0].src.height,src:frames[0].src,an:frames[0].an,thumb:thumbOf(frames[0].src),aois:[]};
+    refresh(a);pushAsset(a)}
+  catch(e){toast('Video non leggibile: '+shortErr(e))}finally{URL.revokeObjectURL(url);setBusy('')}}
+async function handleFiles(list){const files=[...list||[]];if(!files.length)return;
+  for(const f of files){if(f.type.startsWith('video/'))await addVideo(f);else if(f.type.startsWith('image/')){setBusy('Analisi in corso');await tick();await loadImageFile(f)}else toast('Formato non supportato: '+f.name)}
+  setBusy('');S.view='analisi';renderAll()}
+async function reanalyzeAll(){setBusy('Nuovo calcolo');await tick();
+  for(const a of S.assets){if(a.kind==='video'){for(const f of a.frames){f.an=await analyzeCanvas(f.src);f.b=basic(f.an)}a.an=a.frames[a.fi].an}else a.an=await analyzeCanvas(a.src);refresh(a);await tick()}
+  setBusy('');renderAll()}
+function setFrame(a,i){a.fi=clamp(i,0,a.frames.length-1);a.src=a.frames[a.fi].src;a.an=a.frames[a.fi].an;refresh(a);renderAssets();renderCluster();renderRight();renderTimeline();draw()}
+
+/* ---------- esempi ---------- */
+function sampleAd(kind){const c=document.createElement('canvas');c.width=1080;c.height=1350;const g=c.getContext('2d'),serif='Georgia,"Times New Roman",serif',sans='Arial,Helvetica,sans-serif';
+  if(kind==='A'){const bg=g.createRadialGradient(540,720,40,540,720,820);bg.addColorStop(0,'#2A2418');bg.addColorStop(1,'#050505');g.fillStyle=bg;g.fillRect(0,0,1080,1350);
+    g.textAlign='center';g.fillStyle='#F4EFE6';g.font='400 60px '+serif;g.fillText('L\u2019ESSENZA',540,205);g.fillText('DEL TEMPO',540,280);
+    g.fillStyle='#C9A227';g.fillRect(480,430,120,110);g.fillStyle='#8C6A12';g.fillRect(505,540,70,30);
+    const lg=g.createLinearGradient(380,570,700,1030);lg.addColorStop(0,'#E8B04A');lg.addColorStop(1,'#7A4A0E');g.fillStyle=lg;g.fillRect(380,570,320,460);
+    g.strokeStyle='#F5D98A';g.lineWidth=4;g.strokeRect(380,570,320,460);g.fillStyle='#0B0B0B';g.fillRect(430,760,220,90);g.fillStyle='#E9C46A';g.font='400 40px '+serif;g.fillText('V',540,820);
+    g.fillStyle='#E6E6E6';g.font='400 34px '+serif;g.fillText('VALMORE',540,1180);g.fillStyle='#9A9A9A';g.font='400 20px '+sans;g.fillText('PARIS',540,1212);
+    g.strokeStyle='#BDBDBD';g.lineWidth=2;g.strokeRect(440,1250,200,56);g.fillStyle='#BDBDBD';g.font='400 22px '+sans;g.fillText('SCOPRI',540,1286)}
+  else{g.fillStyle='#0B0B0B';g.fillRect(0,0,1080,1350);g.fillStyle='#15120C';g.fillRect(560,0,520,1350);
+    g.textAlign='left';g.fillStyle='#E0B84A';g.font='400 68px '+serif;g.fillText('VALMORE',80,150);g.fillStyle='#B8B8B8';g.font='400 22px '+sans;g.fillText('PARIS',84,190);
+    g.fillStyle='#C9A227';g.fillRect(225,360,150,130);g.fillStyle='#8C6A12';g.fillRect(255,490,90,34);
+    const lg=g.createLinearGradient(100,520,500,1120);lg.addColorStop(0,'#F0BC52');lg.addColorStop(1,'#6E420B');g.fillStyle=lg;g.fillRect(100,524,400,596);
+    g.strokeStyle='#F5D98A';g.lineWidth=4;g.strokeRect(100,524,400,596);g.fillStyle='#0B0B0B';g.fillRect(170,760,260,110);g.fillStyle='#E9C46A';g.font='400 48px '+serif;g.textAlign='center';g.fillText('V',300,832);
+    g.textAlign='left';g.fillStyle='#F4EFE6';g.font='400 54px '+serif;g.fillText('L\u2019ESSENZA',610,640);g.fillText('DEL TEMPO',610,710);
+    g.fillStyle='#B8B8B8';g.font='400 26px '+sans;g.fillText('Eau de parfum, 100 ml',610,770);
+    g.fillStyle='#FFC000';g.fillRect(600,1060,410,96);g.fillStyle='#000';g.font='700 28px '+sans;g.textAlign='center';g.fillText('SCOPRI LA COLLEZIONE',805,1118)}
+  return c}
+async function loadSamples(){setBusy('Analisi degli esempi');await tick();
+  const f=(x,y,w,h)=>({x:x/1080,y:y/1350,w:w/1080,h:h/1350});
+  await addImage(sampleAd('A'),'Valmore · variante A',[{name:'Titolo',cat:'headline',...f(220,140,640,165)},{name:'Flacone',cat:'product',...f(380,430,320,600)},{name:'Logo',cat:'brand',...f(400,1140,280,85)},{name:'CTA',cat:'cta',...f(430,1242,220,72)}]);
+  await addImage(sampleAd('B'),'Valmore · variante B',[{name:'Titolo',cat:'headline',...f(600,580,420,210)},{name:'Flacone',cat:'product',...f(100,360,400,760)},{name:'Logo',cat:'brand',...f(70,80,360,130)},{name:'CTA',cat:'cta',...f(600,1060,410,96)}]);
+  S.cmp=[S.assets[S.assets.length-2].id,S.assets[S.assets.length-1].id];S.active=S.cmp[0];setBusy('');renderAll()}
+
+/* ---------- disegno ---------- */
+function sizeCanvas(cv){const p=cv.parentElement,dpr=window.devicePixelRatio||1,w=p.clientWidth,h=p.clientHeight;
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);cv.style.width=w+'px';cv.style.height=h+'px'}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);return ctx}
+function fit(cv,a,pad){const cw=cv.parentElement.clientWidth,ch=cv.parentElement.clientHeight,s=Math.max(.01,Math.min((cw-2*pad)/a.w,(ch-2*pad-12)/a.h)),w=a.w*s,h=a.h*s;return {x:(cw-w)/2,y:(ch-h)/2-6,w,h}}
+function mapArr(an,m){return m==='start'?[an.pStart,an.maxS]:m==='end'?[an.pEnd,an.maxE]:m==='demand'?[an.dem,1]:m==='clarity'?[an.cla,1]:[an.p,an.maxP]}
+function overlay(an,m){const [arr,mx]=mapArr(an,m),{mw,mh}=an,c=document.createElement('canvas');c.width=mw;c.height=mh;
+  const g=c.getContext('2d'),im=g.createImageData(mw,mh),d=im.data,op=S.opacity,L=lut(),fog=m==='fog'||m==='contour',lo=m==='demand'||m==='clarity'?.05:.1;
+  for(let i=0;i<mw*mh;i++){const t=arr[i]/mx;if(fog){d[i*4+3]=op*(1-ss(.06,.6,t))*(m==='fog'?245:150)}
+    else{const k=Math.min(255,Math.round(t*255))*3;d[i*4]=L[k];d[i*4+1]=L[k+1];d[i*4+2]=L[k+2];d[i*4+3]=op*ss(lo,.85,t)*235}}
+  g.putImageData(im,0,0);return c}
+function contourSegs(m,W,H,t){const segs=[];
+  for(let y=0;y<H-1;y++)for(let x=0;x<W-1;x++){const a=m[y*W+x],b=m[y*W+x+1],c=m[(y+1)*W+x+1],d=m[(y+1)*W+x],k=(a>t?8:0)|(b>t?4:0)|(c>t?2:0)|(d>t?1:0);if(k===0||k===15)continue;
+    const T=[x+(t-a)/(b-a),y],R=[x+1,y+(t-b)/(c-b)],Bo=[x+(t-d)/(c-d),y+1],Le=[x,y+(t-a)/(d-a)];
+    switch(k){case 1:case 14:segs.push(Le,Bo);break;case 2:case 13:segs.push(Bo,R);break;case 3:case 12:segs.push(Le,R);break;case 4:case 11:segs.push(T,R);break;
+      case 5:segs.push(Le,T,Bo,R);break;case 6:case 9:segs.push(T,Bo);break;case 7:case 8:segs.push(Le,T);break;case 10:segs.push(Le,Bo,T,R);break}}return segs}
+function drawContours(ctx,R,an,s){const n=new Float32Array(an.p.length);for(let i=0;i<n.length;i++)n[i]=an.p[i]/an.maxP;ctx.save();ctx.lineWidth=1.6*s;
+  [.2,.4,.6,.8].forEach(t=>{const sg=contourSegs(n,an.mw,an.mh,t);ctx.strokeStyle=lutCss(t+.15);ctx.beginPath();
+    for(let i=0;i<sg.length;i+=2){ctx.moveTo(R.x+(sg[i][0]+.5)/an.mw*R.w,R.y+(sg[i][1]+.5)/an.mh*R.h);ctx.lineTo(R.x+(sg[i+1][0]+.5)/an.mw*R.w,R.y+(sg[i+1][1]+.5)/an.mh*R.h)}ctx.stroke()});ctx.restore()}
+function drawGaze(ctx,R,an,s){const hs=an.hot;if(!hs.length)return;const P=hs.map(h=>[R.x+(h.x+.5)/an.mw*R.w,R.y+(h.y+.5)/an.mh*R.h]);ctx.save();
+  ctx.lineWidth=1.25*s;ctx.setLineDash([5*s,4*s]);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.beginPath();P.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.setLineDash([]);
+  P.forEach(([x,y],i)=>{const r=12*s;ctx.fillStyle=i===0?'#FFC000':'#000';ctx.fillRect(x-r,y-r,2*r,2*r);ctx.lineWidth=1.5*s;ctx.strokeStyle=i===0?'#FFC000':'#FFFFFF';ctx.strokeRect(x-r,y-r,2*r,2*r);
+    ctx.fillStyle=i===0?'#000':'#FFFFFF';ctx.font=`500 ${13*s}px ${DISP}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(i+1),x,y+.5*s)});ctx.restore()}
+function drawSafe(ctx,R,s){ctx.save();ctx.fillStyle='rgba(0,0,0,.55)';const t=R.h*.14,b=R.h*.2;ctx.fillRect(R.x,R.y,R.w,t);ctx.fillRect(R.x,R.y+R.h-b,R.w,b);
+  ctx.strokeStyle='#917300';ctx.lineWidth=1*s;ctx.setLineDash([6*s,4*s]);ctx.beginPath();ctx.moveTo(R.x,R.y+t);ctx.lineTo(R.x+R.w,R.y+t);ctx.moveTo(R.x,R.y+R.h-b);ctx.lineTo(R.x+R.w,R.y+R.h-b);ctx.stroke();
+  ctx.fillStyle='#969696';ctx.font=`500 ${10*s}px ${BODY}`;ctx.textAlign='left';ctx.textBaseline='top';ctx.fillText('ZONA COPERTA DALL\u2019INTERFACCIA',R.x+8*s,R.y+8*s);ctx.restore()}
+function drawAOIs(ctx,R,a,s){ctx.save();const boxes=a.aois.map(x=>({x:R.x+x.x*R.w,y:R.y+x.y*R.h,w:x.w*R.w,h:x.h*R.h}));
+  a.aois.forEach((x,i)=>{const {x:X,y:Y,w:W,h:H}=boxes[i],c=CATS[x.cat],ok=c.target&&x.share>=c.target;
+  ctx.lineWidth=3*s;ctx.strokeStyle='rgba(0,0,0,.5)';ctx.strokeRect(X,Y,W,H);ctx.lineWidth=1.5*s;ctx.strokeStyle=ok?'#FFC000':'#FFFFFF';if(!ok)ctx.setLineDash([6*s,4*s]);ctx.strokeRect(X,Y,W,H);ctx.setLineDash([])});
+  /* etichette: tra sopra, sotto, dentro in alto e dentro in basso sceglie la posizione che copre meno le altre etichette e le altre aree */
+  const ov=(p,q)=>Math.max(0,Math.min(p.x+p.w,q.x+q.w)-Math.max(p.x,q.x))*Math.max(0,Math.min(p.y+p.h,q.y+q.h)-Math.max(p.y,q.y)),placed=[];
+  a.aois.forEach((x,i)=>{const {x:X,y:Y,w:W,h:H}=boxes[i];
+  const name=x.name.toUpperCase()+'  ',val=pct(x.share);ctx.font=`500 ${11*s}px ${BODY}`;const w1=ctx.measureText(name).width;ctx.font=`500 ${13*s}px ${DISP}`;const w2=ctx.measureText(val).width;
+  const cw=w1+w2+16*s,ch=22*s,cx=Math.max(R.x,Math.min(X,R.x+R.w-cw));
+  const cands=[Y-ch,Y+H,Y,Y+H-ch].filter(y=>y>=R.y&&y+ch<=R.y+R.h).map((y,k)=>{const L={x:cx,y,w:cw,h:ch};
+    return {L,cost:placed.reduce((t,q)=>t+ov(L,q)*20,0)+boxes.reduce((t,b,n)=>n===i?t:t+ov(L,b),0)+k}});
+  const best=cands.length?cands.reduce((m,c)=>c.cost<m.cost?c:m).L:{x:cx,y:Y,w:cw,h:ch};placed.push(best);
+  ctx.fillStyle='rgba(0,0,0,.88)';ctx.fillRect(best.x,best.y,cw,ch);ctx.textBaseline='middle';ctx.textAlign='left';
+  ctx.fillStyle='#FFFFFF';ctx.font=`500 ${11*s}px ${BODY}`;ctx.fillText(name,best.x+8*s,best.y+ch/2);ctx.fillStyle='#FFC000';ctx.font=`500 ${13*s}px ${DISP}`;ctx.fillText(val,best.x+8*s+w1,best.y+ch/2+.5*s)});ctx.restore()}
+function drawBlurred(ctx,R,src){const k=Math.max(1,Math.round(Math.max(src.width,src.height)/44)),t=document.createElement('canvas');t.width=Math.max(1,Math.round(src.width/k));t.height=Math.max(1,Math.round(src.height/k));
+  const g=t.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(src,0,0,t.width,t.height);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(t,R.x,R.y,R.w,R.h)}
+function drawScene(ctx,R,a,s){ctx.save();ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+  if(S.map==='blur')drawBlurred(ctx,R,a.src);else ctx.drawImage(a.src,R.x,R.y,R.w,R.h);
+  if(S.map!=='orig'&&S.map!=='blur')ctx.drawImage(overlay(a.an,S.map),R.x,R.y,R.w,R.h);
+  if(S.map==='contour')drawContours(ctx,R,a.an,s);
+  if(S.gaze&&['att','fog','start','contour'].includes(S.map))drawGaze(ctx,R,a.an,s);
+  if(S.safe&&PLATFORMS[S.platform].safe)drawSafe(ctx,R,s);
+  drawAOIs(ctx,R,a,s);ctx.restore()}
+function drawTicks(ctx,R){ctx.save();ctx.strokeStyle='#494949';ctx.fillStyle='#7D7D7D';ctx.lineWidth=1;ctx.font='10px '+BODY;
+  for(let i=0;i<=10;i++){const x=Math.round(R.x+R.w*i/10)+.5,y=Math.round(R.y+R.h*i/10)+.5,l=i%5===0?9:4;
+    ctx.beginPath();ctx.moveTo(x,R.y-6);ctx.lineTo(x,R.y-6-l);ctx.moveTo(R.x-6,y);ctx.lineTo(R.x-6-l,y);ctx.stroke()}
+  ctx.textAlign='center';ctx.textBaseline='bottom';[0,50,100].forEach(p=>ctx.fillText(String(p),R.x+R.w*p/100,R.y-18));
+  ctx.textAlign='right';ctx.textBaseline='middle';[50,100].forEach(p=>ctx.fillText(String(p),R.x-19,R.y+R.h*p/100));
+  ctx.strokeStyle='#7D7D7D';const c=14,o=7;[[R.x+R.w+o,R.y-o,-1,1],[R.x-o,R.y+R.h+o,1,-1],[R.x+R.w+o,R.y+R.h+o,-1,-1]].forEach(([x,y,dx,dy])=>{ctx.beginPath();ctx.moveTo(x+dx*c,y);ctx.lineTo(x,y);ctx.lineTo(x,y+dy*c);ctx.stroke()});ctx.restore()}
+function draw(){const cv=$('#cv');if(S.view!=='analisi'||!cv.parentElement.clientWidth)return;const ctx=sizeCanvas(cv),a=cur();if(!a)return;
+  const R=fit(cv,a,48);drawTicks(ctx,R);drawScene(ctx,R,a,1);
+  if(drag){ctx.save();ctx.strokeStyle='#FFC000';ctx.lineWidth=2;ctx.fillStyle='rgba(255,192,0,.12)';const x=Math.min(drag.x0,drag.x1),y=Math.min(drag.y0,drag.y1),w=Math.abs(drag.x1-drag.x0),h=Math.abs(drag.y1-drag.y0);ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.restore()}
+  cv.setAttribute('aria-label',`${MAP_INFO[S.map]} · ${a.name}`)}
+function snapshot(a,maxSide,type){const s=Math.min(1,maxSide/Math.max(a.w,a.h)),c=document.createElement('canvas');c.width=Math.round(a.w*s);c.height=Math.round(a.h*s);
+  drawScene(c.getContext('2d'),{x:0,y:0,w:c.width,h:c.height},a,Math.max(1,c.width/700));return type?c.toDataURL(type,.9):c}
+
+/* ---------- quadranti ---------- */
+function gaugeSVG(v,band,big){const W=big?170:120,cx=W/2,cy=W/2,r=W/2-11,H=Math.round(W*.8),sw=big?7:5;
+  const ang=x=>-120+240*clamp(x,0,100)/100,P=(a,rr)=>[cx+rr*Math.sin(a*Math.PI/180),cy-rr*Math.cos(a*Math.PI/180)];
+  const arc=(a0,a1,rr)=>{const [x0,y0]=P(a0,rr),[x1,y1]=P(a1,rr);return `M${x0.toFixed(2)} ${y0.toFixed(2)}A${rr} ${rr} 0 ${a1-a0>180?1:0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`};
+  let s=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${arc(-120,120,r)}" stroke="#2E2E2E" stroke-width="${sw}" fill="none"/>`;
+  for(let t=0;t<=100;t+=10){const a=ang(t),[x0,y0]=P(a,r-sw-3),[x1,y1]=P(a,r-sw-3-(t%50===0?8:4));s+=`<line x1="${x0.toFixed(2)}" y1="${y0.toFixed(2)}" x2="${x1.toFixed(2)}" y2="${y1.toFixed(2)}" stroke="#494949" stroke-width="1"/>`}
+  if(band)s+=`<path d="${arc(ang(band[0]),ang(band[1]),r+sw/2+4)}" stroke="#917300" stroke-width="3" fill="none"/>`;
+  if(v>=1)s+=`<path d="${arc(-120,ang(v),r)}" stroke="#FFC000" stroke-width="${sw}" fill="none"/>`;
+  const [a0,b0]=P(ang(v),r-sw),[a1,b1]=P(ang(v),r+sw);s+=`<line x1="${a0.toFixed(2)}" y1="${b0.toFixed(2)}" x2="${a1.toFixed(2)}" y2="${b1.toFixed(2)}" stroke="#FFFFFF" stroke-width="2"/></svg>`;return s}
+function dialHTML(label,v,band,kind,big){const st=kind==='impact'?grade(v):status(v,band,kind);
+  return `<div class="dial${big?' big':''}"><div class="dial-g">${gaugeSVG(v,band,big)}<div class="dial-v">${Math.round(v)}</div></div><div class="dial-l">${label}</div><div class="dial-s ${st.cls}">${st.txt}</div></div>`}
+function dialsHTML(sc){const B=bench();return dialHTML('Neuro impact',sc.impact,null,'impact',true)+dialHTML('Focus',sc.focus,B.focus)+dialHTML('Carico cognitivo',sc.demand,B.demand,'demand')+
+  dialHTML('Chiarezza',sc.clarity,B.clarity)+dialHTML('Coinvolgimento',sc.engagement,B.engagement)+dialHTML('Memorabilità',sc.memory,B.memory)}
+
+/* ---------- render ---------- */
+function renderStatus(){const eng=S.engine==='net'&&S.model?`Rete neurale · ${esc(S.modelName)}`:'Motore classico · indicativo';
+  $('#status').innerHTML=S.busy?`<i class="dot wait"></i>${esc(S.busy)}`:`<i class="dot ok"></i>${eng}`}
+function renderNav(){$$('.nav button').forEach(b=>b.setAttribute('aria-current',b.dataset.view===S.view?'page':'false'));
+  $('#vAnalisi').hidden=S.view!=='analisi';$('#vConfronto').hidden=S.view!=='confronto';$('#vReport').hidden=S.view!=='report';
+  $('#maps').hidden=S.view==='report'||!S.assets.length}
+function renderAssets(){$('#count').textContent=S.assets.length;
+  $('#assets').innerHTML=S.assets.map(a=>`<li><button type="button" class="asset${a.id===S.active?' on':''}" data-asset="${a.id}"><span class="th" style="background-image:url(${a.thumb})">${a.kind==='video'?'<em>VIDEO</em>':''}</span>
+    <span style="min-width:0"><span class="nm">${esc(a.name)}</span><span class="mt">${a.kind==='video'?num(a.dur,1)+' s · '+a.frames.length+' fotogrammi':a.w+'×'+a.h+' · '+fmtRatio(a.w/a.h)}</span></span>
+    <span class="sc">${Math.round(a.sc.impact)}<small>Impact</small></span></button><button type="button" class="del" data-act="delasset" data-id="${a.id}" aria-label="Rimuovi ${esc(a.name)}">×</button></li>`).join('')}
+function renderMaps(){$('#maps').innerHTML=MAPS.map(([k,l],i)=>`<button type="button" data-map="${k}" aria-pressed="${S.map===k}" title="Tasto ${i+1}">${l}</button>`).join('')}
+function renderTools(){const a=cur(),has=!!a;$('#hero').hidden=has;$('#tools').hidden=!has;$('#cluster').hidden=!has;$('#stage').hidden=!has;
+  $('#safeWrap').hidden=!PLATFORMS[S.platform].safe;$('#drawBtn').setAttribute('aria-pressed',String(S.draw));$('#drawBtn').textContent=S.draw?'Termina disegno':'Disegna area';
+  $('#stage').classList.toggle('drawing',S.draw);$('#tip').hidden=!(S.draw&&has);
+  $$('#pal button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.pal===S.palette)));
+  const leg=LEG[S.map];$('#legend').hidden=!leg||!has;if(leg){$('#legLo').textContent=leg[0];$('#legHi').textContent=leg[1];$('#legBar').style.background=S.map==='fog'?'linear-gradient(90deg,#000,#7D7D7D)':legendCss()}
+  $('#info').textContent=has?`${MAP_INFO[S.map]} · ${a.an.eng==='net'?'rete neurale':'motore classico, stima indicativa'}`:''}
+function renderCluster(){const a=cur();if(!a)return;$('#cluster').innerHTML=dialsHTML(a.sc)}
+function renderTimeline(){const a=cur(),w=$('#tlWrap');if(!a||a.kind!=='video'||S.view!=='analisi'){w.hidden=true;return}w.hidden=false;
+  const fr=$('#fr');fr.max=a.frames.length-1;fr.value=a.fi;$('#frl').textContent=`${num(a.frames[a.fi].t)} s di ${num(a.dur)} s`;$('#play').textContent=S.play?'Pausa':'Riproduci';drawTimeline()}
+function drawTimeline(){const a=cur(),cv=$('#tl');if(!a||a.kind!=='video'||!cv.parentElement.clientWidth)return;const ctx=sizeCanvas(cv),W=cv.parentElement.clientWidth,H=cv.parentElement.clientHeight,n=a.frames.length;
+  const X=i=>n>1?6+(W-12)*i/(n-1):W/2,Y=v=>H-5-(H-10)*v/100;ctx.strokeStyle='#2E2E2E';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,Y(50)+.5);ctx.lineTo(W,Y(50)+.5);ctx.stroke();
+  [['demand','#E6E6E6',1],['focus','#FFC000',2]].forEach(([k,c,lw])=>{ctx.strokeStyle=c;ctx.lineWidth=lw;ctx.beginPath();a.frames.forEach((f,i)=>{const x=X(i),y=Y(f.b[k]);i?ctx.lineTo(x,y):ctx.moveTo(x,y)});ctx.stroke()});
+  ctx.fillStyle='#FFC000';ctx.fillRect(Math.round(X(a.fi))-1,0,2,H)}
+function renderAree(){const el=$('#tAree'),a=cur();if(!a){el.innerHTML='<div class="sec"><p class="note" style="margin:0">Carica una creatività per disegnare le aree di interesse.</p></div>';return}
+  const opts=k=>Object.entries(CATS).map(([v,c])=>`<option value="${v}"${v===k?' selected':''}>${c.label}</option>`).join('');
+  const cards=a.aois.map(x=>{const c=CATS[x.cat],cls=c.target?(x.share>=c.target?'ok':'low'):'';return `<div class="aoi ${cls}"><div class="aoi-top"><input type="text" value="${esc(x.name)}" data-name="${x.id}" aria-label="Nome area"><select data-cat="${x.id}" aria-label="Categoria">${opts(x.cat)}</select><button class="x" type="button" data-act="delaoi" data-id="${x.id}" aria-label="Elimina ${esc(x.name)}">×</button></div>
+    <div class="aoi-m"><div><b>${pct(x.share)}</b><span>Attenz.</span></div><div><b>${pct(x.start)}</b><span>Iniziale</span></div><div><b>${Math.round(x.seen*100)}%</b><span>Visto</span></div><div><b>${num(x.time)} s</b><span>Tempo</span></div><div><b>${x.first?x.first+'°':'—'}</b><span>Sguardo</span></div></div>
+    ${c.target?`<p class="aoi-t">${x.share>=c.target?'Obiettivo raggiunto':'Sotto l\u2019obiettivo'} · minimo ${pct(c.target)}</p>`:''}</div>`}).join('');
+  el.innerHTML=`<div class="sec"><div class="field"><label class="lbl" for="aoiCat">Categoria della prossima area</label><select id="aoiCat">${opts(S.aoiCat)}</select></div>
+    <button class="btn block${S.draw?'':' gold'}" type="button" data-act="draw" aria-pressed="${S.draw}">${S.draw?'Termina il disegno':'Disegna un\u2019area'}</button>
+    <p class="note">Trascina un rettangolo sull\u2019immagine. Tempo e visto sono stime su 5 secondi di esposizione.</p></div>
+    <div class="sec">${cards||'<p class="note" style="margin:0">Nessuna area. Parti da logo, prodotto e CTA: sono quelle che decidono il risultato.</p>'}
+    ${a.aois.length&&S.assets.length>1?'<button class="btn sm block" type="button" data-act="copyaoi" style="margin-top:12px">Copia le aree sulle altre creatività</button>':''}</div>`}
+function renderConsigli(){const el=$('#tConsigli'),a=cur();if(!a){el.innerHTML='<div class="sec"><p class="note" style="margin:0">Nessuna creatività da valutare.</p></div>';return}const g=grade(a.sc.impact);
+  el.innerHTML=`<div class="sec"><span class="lbl">Neuro impact score</span><div class="imp"><span class="imp-v">${Math.round(a.sc.impact)}</span><span class="imp-g ${g.cls}">${g.txt}</span></div>
+    <p class="note">Sintesi rispetto alla fascia di ${PLATFORMS[S.platform].label.toLowerCase()}, settore ${INDUSTRIES[S.industry].label.toLowerCase()}.</p></div>
+    <div class="sec">${a.recs.map(r=>`<article class="rec ${r.lvl}"><span class="lv">${LV[r.lvl]}</span><h3>${esc(r.title)}</h3><p>${esc(r.body)}</p></article>`).join('')}</div>`}
+function renderDiag(){const L={tf:'TensorFlow.js da cdnjs',ort:'ONNX Runtime da cdnjs',net:'Download da internet',store:'Memoria del browser',model:'Rete neurale',classic:'Motore classico'};
+  $('#diag').innerHTML=Object.keys(L).map(k=>`<li><i class="dot ${S.diag[k].s}"></i><div><b>${L[k]}</b><span>${esc(S.diag[k].t)}</span></div></li>`).join('');
+  $$('#engSeg button').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.eng===S.engine));if(b.dataset.eng==='net')b.disabled=!S.model})}
+function releaseYear(n){n=n.toLowerCase();return /msdb/.test(n)?2025:/deepgaze/.test(n)?2021:/umsi|unisal|msi/.test(n)?2020:null}
+function renderCatalog(){const el=$('#catList');if(!el)return;const btn=$('#catUpd');if(btn){btn.disabled=S.catBusy||!!S.dl;btn.textContent=S.catBusy?'Aggiornamento in corso':'Aggiorna modelli'}
+  const ids=Object.keys(S.inst);
+  if(!S.cat&&!ids.length){el.innerHTML=`<p class="note" style="margin:0">${esc(S.catErr||'Caricamento dell\u2019elenco dei modelli…')}</p>`;return}
+  const list=S.cat?S.cat.modelli:ids.map(id=>({id,nome:S.inst[id].nome,ruolo:'',descrizione:'',versione:S.inst[id].version,licenza:S.inst[id].licenza,file:{size:S.inst[id].size,sha256:S.inst[id].sha256}}));
+  el.innerHTML=list.map(m=>{const e=S.inst[m.id],on=S.activeCat===m.id&&!!S.model,upd=!!e&&!!S.cat&&m.file.sha256!==e.sha256,dl=S.dl&&S.dl.id===m.id,busy=!!S.dl||S.catBusy,
+      p=dl&&S.dl.total?Math.min(100,Math.round(S.dl.got/S.dl.total*100)):0;
+    return `<article class="mdl${on?' on':''}"><div class="mdl-h"><b>${esc(m.nome)}</b>${m.ruolo?`<span class="badge${m.consigliato?' gold':''}">${esc(m.ruolo)}</span>`:''}${on?'<span class="badge upd">In uso</span>':''}${upd?'<span class="badge upd">Aggiornamento disponibile</span>':''}</div>
+    ${m.descrizione?`<p class="note" style="margin:6px 0 0">${esc(m.descrizione)}</p>`:''}
+    <p class="note" style="margin:4px 0 0">${fmtMB(m.file.size)} · licenza ${esc(m.licenza)} · ${esc(m.versione)}${e?` · installato il ${fmtDate(e.installed)}`:''}</p>
+    ${dl?`<div class="prog" role="progressbar" aria-label="Download di ${esc(m.nome)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${p}"><i style="width:${p}%"></i></div>
+    <p class="note" style="margin:6px 0 0" aria-live="polite">${S.dl.verify?'Verifica e prova del modello…':`Scaricati ${fmtMB(S.dl.got)} di ${fmtMB(S.dl.total)}`}</p>`
+    :`<div class="mdl-a">${!e?`<button class="btn xs${m.consigliato?' gold':''}" type="button" data-act="catInstall" data-id="${m.id}"${busy?' disabled':''}>Installa</button>`:on?'':`<button class="btn xs" type="button" data-act="catUse" data-id="${m.id}"${busy?' disabled':''}>Usa</button>`}${upd?`<button class="btn xs gold" type="button" data-act="catInstall" data-id="${m.id}"${busy?' disabled':''}>Aggiorna</button>`:''}${e&&e.prev?`<button class="btn xs" type="button" data-act="catBack" data-id="${m.id}"${busy?' disabled':''}>Versione precedente</button>`:''}${e?`<button class="btn xs" type="button" data-act="catRemove" data-id="${m.id}"${busy?' disabled':''}>${S.catDelArm===m.id?'Conferma rimozione':'Rimuovi'}</button>`:''}${m.fonte?`<a class="src" href="${esc(m.fonte)}" target="_blank" rel="noopener">Fonte</a>`:''}</div>`}</article>`}).join('')+(S.catErr&&S.cat?`<p class="note">${esc(S.catErr)}</p>`:'');
+  const ex=$('#catEx');if(ex&&S.cat&&S.cat.esclusi)ex.innerHTML=S.cat.esclusi.map(x=>`<dt>${esc(x.nome)}</dt><dd>${esc(x.motivo)}</dd>`).join('');
+  const nt=$('#catNote');if(nt)nt.innerHTML=S.cat?`Elenco aggiornato al ${fmtDate(S.cat.aggiornato)}. Ogni modello si scarica una volta dal sito, resta nel browser e funziona anche senza connessione. <a class="src" href="/modelli/licenze/LEGGIMI.md" target="_blank" rel="noopener" style="color:var(--gold)">Licenze dei modelli</a>`:esc(S.catErr||'')}
+function renderSaved(){const el=$('#saved');if(!el)return;
+  if(!S.storeOk){el.innerHTML='<p class="note" style="margin:0">La memoria dell\u2019app non è disponibile qui: i modelli vanno ricaricati a ogni apertura.</p>';$('#lastCheck').textContent='';return}
+  const list=S.saved.filter(x=>!x.backupOf);
+  $('#lastCheck').textContent=S.lastCheck?`Ultima verifica automatica: ${fmtDate(S.lastCheck)}. Si ripete una volta al giorno all\u2019apertura.`:'La verifica automatica parte una volta al giorno all\u2019apertura.';
+  if(!list.length){el.innerHTML='<p class="note" style="margin:0">Nessun modello conservato. Aggiungine uno qui sotto: resterà nell\u2019app anche alle prossime aperture.</p>';return}
+  el.innerHTML=list.map(e=>{const b=S.saved.find(x=>x.backupOf===e.slot),on=e.slot===S.activeSlot&&!!S.model,c=e.check,yr=releaseYear(e.name),stale=!e.checkedAt||Date.now()-Date.parse(e.checkedAt)>30*864e5;
+    return `<div class="mdl${on?' on':''}"><div class="mdl-h"><b>${esc(e.name)}</b>${on?'<span class="badge gold">Attivo</span>':''}${c&&c.s==='update'?'<span class="badge upd">Aggiornamento</span>':''}${e.source&&stale?'<span class="badge">Da verificare</span>':''}</div>
+    <p class="note" style="margin:4px 0 0">${e.kind==='onnx'?'ONNX':'TensorFlow.js'} · ${fmtMB(e.size)} · conservato il ${fmtDate(e.added)}${e.version?' · versione '+esc(e.version):''}${yr?' · architettura del '+yr:''}</p>
+    <p class="note" style="margin:4px 0 0">${c?esc(c.t)+' · '+fmtDate(e.checkedAt):e.source?'Non ancora verificato':'Nessuna sorgente per gli aggiornamenti'}</p>
+    ${e.source?`<a class="src" href="${esc(e.source)}" target="_blank" rel="noopener">${esc(e.source)}</a>`:`<div class="field" style="margin:10px 0 0"><label class="lbl" for="src-${e.slot}">Sorgente per gli aggiornamenti</label><input type="url" id="src-${e.slot}" data-src="${e.slot}" placeholder="https://github.com/…"></div>`}
+    <div class="mdl-a">${on?'':`<button class="btn xs" type="button" data-act="mUse" data-slot="${e.slot}">Usa</button>`}
+      ${e.source?`<button class="btn xs" type="button" data-act="mCheck" data-slot="${e.slot}">Verifica</button>`:''}
+      ${c&&c.s==='update'&&c.direct?`<button class="btn xs gold" type="button" data-act="mPull" data-slot="${e.slot}">Scarica e aggiorna</button>`:''}
+      ${c&&c.url&&!c.direct?`<a class="btn xs" href="${esc(c.url)}" target="_blank" rel="noopener">Apri sorgente</a>`:''}
+      <button class="btn xs" type="button" data-act="mFile" data-slot="${e.slot}">Aggiorna da file</button>
+      ${b?`<button class="btn xs" type="button" data-act="mBack" data-slot="${e.slot}">Torna alla versione del ${fmtDate(b.added)}</button>`:''}
+      <button class="btn xs" type="button" data-act="mDel" data-slot="${e.slot}">${S.delArm===e.slot?'Conferma eliminazione':'Elimina'}</button></div></div>`}).join('')}
+function renderRight(){$$('.rtabs button').forEach(b=>{const on=b.dataset.rtab===S.rtab;b.setAttribute('aria-selected',String(on));b.tabIndex=on?0:-1});
+  $('#tAree').hidden=S.rtab!=='aree';$('#tConsigli').hidden=S.rtab!=='consigli';$('#tMotore').hidden=S.rtab!=='motore';
+  if(S.rtab==='aree')renderAree();else if(S.rtab==='consigli')renderConsigli();else{renderSaved();renderCatalog()}renderDiag()}
+function catShares(a){const o={};a.aois.forEach(x=>{o[x.cat]=(o[x.cat]||0)+x.share});return o}
+function renderCompare(){const opts=sel=>S.assets.map(a=>`<option value="${a.id}"${a.id===sel?' selected':''}>${esc(a.name)}</option>`).join('');
+  if(S.assets.length&&!byId(S.cmp[0]))S.cmp[0]=S.assets[0].id;if(S.assets.length>1&&(!byId(S.cmp[1])||S.cmp[1]===S.cmp[0]))S.cmp[1]=(S.assets.find(a=>a.id!==S.cmp[0])||{}).id;
+  $('#cmpA').innerHTML=opts(S.cmp[0]);$('#cmpB').innerHTML=opts(S.cmp[1]);const A=byId(S.cmp[0]),B=byId(S.cmp[1]);
+  if(!A||!B||A===B){$('#verdict').innerHTML='<p>Servono almeno due creatività. Carica una variante oppure usa i due esempi.</p>';$('#cmpTable').innerHTML='';return}
+  const Bn=bench(),mid=(Bn.demand[0]+Bn.demand[1])/2;
+  const rows=[['Neuro impact','impact'],['Focus','focus'],['Carico cognitivo','demand'],['Chiarezza','clarity'],['Coinvolgimento','engagement'],['Memorabilità','memory']].map(([l,k])=>{const a=A.sc[k],b=B.sc[k];
+    let w=null;if(k==='demand'){const da=Math.abs(a-mid),db=Math.abs(b-mid);if(Math.abs(da-db)>=1)w=da<db?'A':'B'}else if(Math.abs(a-b)>=1)w=a>b?'A':'B';return {l,a:Math.round(a),b:Math.round(b),w,d:Math.round(b-a)}});
+  const ca=catShares(A),cb=catShares(B),cats=Object.keys(CATS).filter(k=>k in ca||k in cb);
+  const aoiRows=cats.map(k=>{const a=ca[k]||0,b=cb[k]||0;return {l:CATS[k].label,a:pct(a),b:pct(b),w:Math.abs(a-b)>=.005?(a>b?'A':'B'):null,d:(b-a>=0?'+':'')+num((b-a)*100)}});
+  const wa=rows.filter(r=>r.w==='A').length,wb=rows.filter(r=>r.w==='B').length,lead=wa===wb?null:wa>wb?'A':'B';
+  $('#verdict').innerHTML=`<div class="big">${lead?`Vince <span>${lead}</span> ${Math.max(wa,wb)}–${Math.min(wa,wb)}`:'Pareggio'}</div>
+    <p>${lead?`${esc((lead==='A'?A:B).name)} ha un impact score di ${Math.round((lead==='A'?A:B).sc.impact)} contro ${Math.round((lead==='A'?B:A).sc.impact)}.`:'Le due creatività si equivalgono sulle misure principali.'} Per il carico cognitivo vince chi è più vicino al centro della fascia consigliata.</p>`;
+  const tr=r=>`<tr><td>${r.l}</td><td class="${r.w==='A'?'win':''}">${r.a}</td><td class="${r.w==='B'?'win':''}">${r.b}</td><td>${typeof r.d==='number'?(r.d>0?'+':'')+r.d:r.d}</td></tr>`;
+  $('#cmpTable').innerHTML=`<table class="t"><thead><tr><th>Misura</th><th>A</th><th>B</th><th>B − A</th></tr></thead><tbody>${rows.map(tr).join('')}
+    ${aoiRows.length?`<tr class="grp"><td colspan="4">Attenzione per categoria di area</td></tr>${aoiRows.map(tr).join('')}`:''}</tbody></table>
+    ${aoiRows.length?'':'<p class="note">Disegna le aree nelle due creatività per confrontare logo, prodotto e CTA.</p>'}`}
+function drawCompare(){[['#cvA',0],['#cvB',1]].forEach(([sel,i])=>{const cv=$(sel);if(!cv.parentElement.clientWidth)return;const ctx=sizeCanvas(cv),a=byId(S.cmp[i]);if(!a||S.view!=='confronto')return;drawScene(ctx,fit(cv,a,20),a,1)})}
+function renderReport(){const el=$('#rep'),a=cur();if(!a){el.innerHTML='<p class="note">Carica una creatività per generare il report.</p>';return}
+  const date=new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}),mapL=MAPS.find(m=>m[0]===S.map)[1];
+  el.innerHTML=`<header class="rep-head"><div><span class="lbl k">Luxury Academy · Neuro Analyzer · Report</span><h1 class="rep-title">${esc(a.name)}</h1>
+      <p class="note">${PLATFORMS[S.platform].label} · ${INDUSTRIES[S.industry].label} · ${a.an.eng==='net'?'Rete neurale '+esc(S.modelName):'Motore classico (stima indicativa)'} · ${date}</p></div>
+      <div class="rep-actions"><button class="btn gold" type="button" data-act="print">Stampa o salva PDF</button><button class="btn" type="button" data-act="csv">Esporta CSV</button><button class="btn" type="button" data-act="png">Esporta PNG</button></div></header>
+    <div class="rep-grid"><figure class="rep-img"><img src="${snapshot(a,1400,'image/jpeg')}" alt="Mappa ${mapL} di ${esc(a.name)}"><figcaption class="note">Mappa ${mapL.toLowerCase()}: ${MAP_INFO[S.map].toLowerCase()}. Puoi cambiarla dalla sezione Analisi.</figcaption></figure>
+      <div><div class="rep-dials">${dialsHTML(a.sc)}</div><span class="lbl rep-h">Aree di interesse</span>
+      ${a.aois.length?`<table class="t"><thead><tr><th>Area</th><th>Attenz.</th><th>Iniziale</th><th>Visto</th><th>Tempo</th><th>1°</th></tr></thead><tbody>${a.aois.map(x=>`<tr><td>${esc(x.name)}<br><span class="note">${CATS[x.cat].label}</span></td><td class="${CATS[x.cat].target&&x.share>=CATS[x.cat].target?'win':''}">${pct(x.share)}</td><td>${pct(x.start)}</td><td>${Math.round(x.seen*100)}%</td><td>${num(x.time)} s</td><td>${x.first?x.first+'°':'—'}</td></tr>`).join('')}</tbody></table>`:'<p class="note">Nessuna area disegnata.</p>'}</div></div>
+    <span class="lbl rep-h">Raccomandazioni</span><div class="rep-recs">${a.recs.map(r=>`<article class="rec ${r.lvl}"><span class="lv">${LV[r.lvl]}</span><h3>${esc(r.title)}</h3><p>${esc(r.body)}</p></article>`).join('')}</div>
+    <p class="note" style="margin-top:24px">Stime calcolate su contrasto, colore, densità di dettagli e posizione${a.an.eng==='net'?', con mappa di attenzione da una rete neurale addestrata su dati di eye-tracking':''}. Utili per confrontare varianti prima del lancio, non sostituiscono un test con persone reali.</p>`}
+function renderView(){renderNav();if(S.view==='analisi'){renderMaps();renderTools();renderCluster();renderTimeline();requestAnimationFrame(draw)}
+  else if(S.view==='confronto'){renderMaps();renderCompare();requestAnimationFrame(drawCompare)}else renderReport()}
+function renderAll(){renderStatus();renderAssets();renderView();renderRight()}
+
+/* ---------- esportazioni ---------- */
+function exportPNG(){const a=cur();if(!a)return;snapshot(a,4096).toBlob(b=>b?download(b,`neuro-analyzer-${a.name.replace(/[^\w-]+/g,'_')}-${S.map}.png`):toast('Esportazione non riuscita'),'image/png')}
+function exportCSV(){const a=cur();if(!a)return;const B=bench(),sc=a.sc,n=v=>num(v,1),rows=[['Luxury Academy Neuro Analyzer'],['Creatività',a.name],['Piattaforma',PLATFORMS[S.platform].label],['Settore',INDUSTRIES[S.industry].label],['Motore',a.an.eng==='net'?'Rete neurale '+S.modelName:'Classico'],[],
+  ['Metrica','Valore','Fascia minima','Fascia massima'],['Neuro impact',n(sc.impact),'',''],['Focus',n(sc.focus),...B.focus],['Carico cognitivo',n(sc.demand),...B.demand],['Chiarezza',n(sc.clarity),...B.clarity],['Coinvolgimento',n(sc.engagement),...B.engagement],['Memorabilità',n(sc.memory),...B.memory],[],
+  ['Area','Categoria','Attenzione %','Iniziale %','Finale %','Visto %','Tempo s','Primo sguardo'],...a.aois.map(x=>[x.name,CATS[x.cat].label,n(x.share*100),n(x.start*100),n(x.end*100),n(x.seen*100),n(x.time),x.first||'']),[],
+  ['Livello','Raccomandazione','Dettaglio'],...a.recs.map(r=>[LV[r.lvl],r.title,r.body])];
+  download(new Blob(['\ufeff'+rows.map(r=>r.map(c=>`"${String(c??'').replace(/"/g,'""')}"`).join(';')).join('\n')],{type:'text/csv;charset=utf-8'}),`neuro-analyzer-${a.name.replace(/[^\w-]+/g,'_')}.csv`)}
+
+/* ---------- eventi ---------- */
+function setDraw(on){S.draw=on;if(on)S.rtab='aree';renderTools();renderRight()}
+const slotOf=t=>S.saved.find(x=>x.slot===t.dataset.slot);
+$('.rtabs').addEventListener('keydown',e=>{const tabs=$$('.rtabs button'),i=tabs.findIndex(b=>b.dataset.rtab===S.rtab),k={ArrowRight:i+1,ArrowLeft:i-1,Home:0,End:tabs.length-1}[e.key];
+  if(k===undefined)return;e.preventDefault();const t=tabs[(k+tabs.length)%tabs.length];S.rtab=t.dataset.rtab;renderRight();t.focus()});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-act],[data-view],[data-map],[data-asset],[data-rtab],[data-pal],[data-eng]');if(!t)return;
+  if(t.dataset.view){S.view=t.dataset.view;if(S.view!=='analisi')S.draw=false;renderAll();return}
+  if(t.dataset.map){S.map=t.dataset.map;renderMaps();renderTools();draw();drawCompare();return}
+  if(t.dataset.asset){S.active=+t.dataset.asset;S.draw=false;stopPlay();renderAll();return}
+  if(t.dataset.rtab){S.rtab=t.dataset.rtab;renderRight();return}
+  if(t.dataset.pal){S.palette=t.dataset.pal;renderTools();draw();drawCompare();return}
+  if(t.dataset.eng){if(t.disabled||t.dataset.eng===S.engine)return;S.engine=t.dataset.eng;reanalyzeAll();return}
+  const act=t.dataset.act,a=cur(),m=t.dataset.slot?slotOf(t):null;
+  if(act!=='mDel')S.delArm=null;
+  if(act==='upload')$('#file').click();
+  else if(act==='sample')loadSamples();
+  else if(act==='draw'){if(S.view!=='analisi'){S.view='analisi';renderAll()}setDraw(!S.draw)}
+  else if(act==='png')exportPNG();
+  else if(act==='csv')exportCSV();
+  else if(act==='print'){try{window.print()}catch(err){toast('La stampa non è consentita qui: usa Esporta PNG o CSV')}}
+  else if(act==='delaoi'&&a){a.aois=a.aois.filter(x=>String(x.id)!==t.dataset.id);refresh(a);renderAll()}
+  else if(act==='delasset'){const id=+t.dataset.id;S.assets=S.assets.filter(x=>x.id!==id);if(S.active===id)S.active=S.assets.length?S.assets[S.assets.length-1].id:null;S.cmp=S.cmp.map(c=>c===id?null:c);stopPlay();renderAll()}
+  else if(act==='copyaoi'&&a){S.assets.forEach(o=>{if(o!==a){o.aois=a.aois.map(x=>({name:x.name,cat:x.cat,x:x.x,y:x.y,w:x.w,h:x.h,id:aoiUid++}));refresh(o)}});renderAll();toast('Aree copiate su tutte le creatività')}
+  else if(act==='catInstall')installCat(t.dataset.id,{update:!!S.inst[t.dataset.id]});
+  else if(act==='catUse')useCat(t.dataset.id);
+  else if(act==='catBack')restoreCat(t.dataset.id);
+  else if(act==='catUpdate')updateCatalog();
+  else if(act==='catRemove'){const id=t.dataset.id;if(S.catDelArm===id){S.catDelArm=null;removeCat(id)}else{S.catDelArm=id;renderCatalog()}}
+  else if(act==='mCheckAll')checkAll(false);
+  else if(act==='mUse'&&m)loadSlot(m);
+  else if(act==='mCheck'&&m)checkUpdate(m,false);
+  else if(act==='mPull'&&m)loadModelFromURL(m.source,{name:m.name,source:m.source,version:''});
+  else if(act==='mFile'&&m){S.pending={name:m.name,source:m.source};$('#mfiles').click()}
+  else if(act==='mBack'&&m)restoreBackup(m);
+  else if(act==='mDel'&&m){if(S.delArm===m.slot){S.delArm=null;deleteModel(m)}else{S.delArm=m.slot;renderSaved()}}
+});
+document.addEventListener('input',e=>{const t=e.target,a=cur();
+  if(t.dataset.name&&a){const x=a.aois.find(x=>String(x.id)===t.dataset.name);if(x){x.name=t.value||CATS[x.cat].short;draw()}}
+  else if(t.id==='op'){S.opacity=t.value/100;draw();drawCompare()}
+  else if(t.id==='fr'&&a&&a.kind==='video'){stopPlay();setFrame(a,+t.value)}});
+document.addEventListener('change',e=>{const t=e.target,a=cur();
+  if(t.dataset.name&&a){refresh(a);renderAll()}
+  else if(t.dataset.cat&&a){const x=a.aois.find(x=>String(x.id)===t.dataset.cat);if(x){x.cat=t.value;refresh(a);renderAll()}}
+  else if(t.dataset.src){const m=S.saved.find(x=>x.slot===t.dataset.src),v=t.value.trim();if(m&&v){m.source=v;m.baseline='';writeIndex().catch(()=>{});checkUpdate(m,false)}}
+  else if(t.id==='aoiCat')S.aoiCat=t.value;
+  else if(t.id==='gaze'){S.gaze=t.checked;draw();drawCompare()}
+  else if(t.id==='safe'){S.safe=t.checked;S.assets.forEach(refresh);renderAll()}
+  else if(t.id==='platform'){S.platform=t.value;reanalyzeAll()}
+  else if(t.id==='industry'){S.industry=t.value;S.assets.forEach(refresh);renderAll()}
+  else if(t.id==='cmpA'||t.id==='cmpB'){S.cmp[t.id==='cmpA'?0:1]=+t.value;renderCompare();drawCompare()}
+  else if(t.id==='file'){handleFiles(t.files);t.value=''}
+  else if(t.id==='mfiles'){const fs=[...t.files];t.value='';if(fs.length)loadModelFromFiles(fs);else S.pending=null}});
+$('#murlBtn').addEventListener('click',()=>loadModelFromURL($('#murl').value.trim()));
+$('#mfilesBtn').addEventListener('click',()=>{S.pending=null;$('#mfiles').click()});
+function stopPlay(){if(S.play){clearInterval(S.play);S.play=null;$('#play').textContent='Riproduci'}}
+$('#play').addEventListener('click',()=>{const a=cur();if(!a||a.kind!=='video')return;if(S.play){stopPlay();return}
+  S.play=setInterval(()=>{const b=cur();if(!b||b.kind!=='video'){stopPlay();return}setFrame(b,(b.fi+1)%b.frames.length)},500);$('#play').textContent='Pausa'});
+window.addEventListener('dragover',e=>{e.preventDefault();$('#drop').classList.add('over');$('#stage').classList.add('over')});
+window.addEventListener('dragleave',e=>{if(!e.relatedTarget){$('#drop').classList.remove('over');$('#stage').classList.remove('over')}});
+window.addEventListener('drop',e=>{e.preventDefault();$('#drop').classList.remove('over');$('#stage').classList.remove('over');handleFiles(e.dataTransfer.files)});
+window.addEventListener('paste',e=>{const it=[...((e.clipboardData||{}).items||[])].find(i=>i.type.startsWith('image/'));if(it)handleFiles([it.getAsFile()])});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&S.draw){setDraw(false);return}
+  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.metaKey||e.ctrlKey||e.altKey)return;const n=+e.key;
+  if(n>=1&&n<=9&&S.assets.length&&S.view!=='report'){S.map=MAPS[n-1][0];renderMaps();renderTools();draw();drawCompare()}});
+const cv=$('#cv'),pt=e=>{const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}};
+cv.addEventListener('pointerdown',e=>{const a=cur();if(!S.draw||!a)return;const R=fit(cv,a,48),p=pt(e);if(p.x<R.x||p.x>R.x+R.w||p.y<R.y||p.y>R.y+R.h)return;drag={x0:p.x,y0:p.y,x1:p.x,y1:p.y,R};cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(!drag)return;const p=pt(e),R=drag.R;drag.x1=clamp(p.x,R.x,R.x+R.w);drag.y1=clamp(p.y,R.y,R.y+R.h);draw()});
+cv.addEventListener('pointerup',()=>{if(!drag)return;const a=cur(),R=drag.R,x=Math.min(drag.x0,drag.x1),y=Math.min(drag.y0,drag.y1),w=Math.abs(drag.x1-drag.x0),h=Math.abs(drag.y1-drag.y0);drag=null;
+  if(a&&w>8&&h>8){const same=a.aois.filter(z=>z.cat===S.aoiCat).length;a.aois.push({id:aoiUid++,name:CATS[S.aoiCat].short+(same?' '+(same+1):''),cat:S.aoiCat,x:(x-R.x)/R.w,y:(y-R.y)/R.h,w:w/R.w,h:h/R.h});refresh(a);renderAssets();renderCluster();renderRight()}draw()});
+new ResizeObserver(()=>{draw();drawTimeline();drawCompare()}).observe($('.center'));
+
+/* ---------- avvio ---------- */
+$('#platform').innerHTML=Object.entries(PLATFORMS).map(([k,p])=>`<option value="${k}"${k===S.platform?' selected':''}>${p.label}</option>`).join('');
+$('#industry').innerHTML=Object.entries(INDUSTRIES).map(([k,p])=>`<option value="${k}"${k===S.industry?' selected':''}>${p.label}</option>`).join('');
+renderAll();testNet();ensureOrt();loadCatalog();
+(async()=>{await Promise.all([initStore(),initTF()]);
+  if(S.storeOk){try{S.inst=JSON.parse(await sget('cat:inst')||'{}')}catch(e){S.inst={}}renderCatalog();
+    const ac=await sget('cat:active');
+    if(ac&&S.inst[ac])await useCat(ac,{silent:true});
+    else{const act=await sget('mdl:active'),e=S.saved.find(x=>x.slot===act&&!x.backupOf);if(e)await loadSlot(e,{silent:true});
+      else if(!Object.keys(S.inst).length&&!await sget('cat:auto')&&'caches' in window&&(S.cat||await loadCatalog())){
+        /* prima apertura: installa UNISAL (6 MB), il modello consigliato. Se l'utente poi lo rimuove non viene reinstallato */
+        if(await installCat('unisal'))sset('cat:auto','1').catch(()=>{})}}
+    if(S.saved.some(x=>!x.backupOf&&x.source)&&(!S.lastCheck||Date.now()-Date.parse(S.lastCheck)>864e5))checkAll(true)}
+  renderSaved();renderCatalog()})();
+})();
+</script>
+</body>
+</html>
