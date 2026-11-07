@@ -1,3 +1,5 @@
+[English](README.en.md) · **Italiano**
+
 # Neuro Analyzer — dove cade lo sguardo
 
 Web app che **stima dove cade lo sguardo** su una creatività (annuncio, post, banner), misura quanto emergono **logo, prodotto e call to action** e **confronta più varianti** tra loro, per scegliere la più efficace prima di pubblicarla.
